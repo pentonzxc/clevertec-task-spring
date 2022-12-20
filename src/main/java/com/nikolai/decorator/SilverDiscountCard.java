@@ -1,5 +1,7 @@
 package com.nikolai.decorator;
 
+import com.nikolai.model.card.DiscountCard;
+
 public class SilverDiscountCard extends DiscountCardRank {
     private DiscountCard discountCard;
 

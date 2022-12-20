@@ -1,7 +1,7 @@
 package com.nikolai.storage;
 
 import com.nikolai.exceptions.UnknownDiscountCardException;
-import com.nikolai.model.Product;
+import com.nikolai.model.product.Product;
 
 import java.util.HashMap;
 import java.util.Map;

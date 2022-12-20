@@ -2,6 +2,7 @@ package com.nikolai;
 
 import com.nikolai.decorator.StandardDiscountCard;
 import com.nikolai.exceptions.UnsupportedPatternException;
+import com.nikolai.parser.CommandLineReceiptParser;
 import com.nikolai.parser.ReceiptParser;
 import com.nikolai.storage.DiscountCardStorage;
 import org.junit.jupiter.api.Assertions;
@@ -13,7 +14,7 @@ public class CommandLineReceiptParserTest {
 
     @BeforeAll
     public static void setUp() {
-        cliReceiptParser = new com.nikolai.parser.CommandLineReceiptParser();
+        cliReceiptParser = new CommandLineReceiptParser();
     }
 
 

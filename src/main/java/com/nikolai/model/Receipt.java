@@ -1,6 +1,7 @@
 package com.nikolai.model;
 
-import com.nikolai.decorator.DiscountCard;
+import com.nikolai.model.card.DiscountCard;
+import com.nikolai.model.product.ProductOrder;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,7 +17,7 @@ public class Receipt implements Iterable<Map.Entry<Integer, ProductOrder>> {
 
     public void add(ProductOrder order) {
         orders.merge(order.getProduct().getId(), order,
-                (newOrder, oldOrder) -> new ProductOrder(newOrder.getProduct() , newOrder.getQuantity() + oldOrder.getQuantity()));
+                (newOrder, oldOrder) -> new ProductOrder(newOrder.getProduct(), newOrder.getQuantity() + oldOrder.getQuantity()));
     }
 
     public ProductOrder get(Integer integer) {
@@ -27,15 +28,13 @@ public class Receipt implements Iterable<Map.Entry<Integer, ProductOrder>> {
         return orders.size();
     }
 
-
-    public void setDiscountCard(DiscountCard card) {
-        this.discountCard = card;
-    }
-
     public DiscountCard getDiscountCard() {
         return discountCard;
     }
 
+    public void setDiscountCard(DiscountCard card) {
+        this.discountCard = card;
+    }
 
     @Override
     public String toString() {

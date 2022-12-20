@@ -1,5 +1,10 @@
-package com.nikolai.decorator;
+package com.nikolai.model.card;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "discount_card", schema = "clevertec_task")
 public class StandardDiscountCard extends DiscountCard {
 
     public StandardDiscountCard() {
@@ -9,8 +14,9 @@ public class StandardDiscountCard extends DiscountCard {
     public StandardDiscountCard(Integer id, int discount) {
         super(id, discount);
     }
-    public StandardDiscountCard(Integer id , int discount , Integer code) {
-        super(id, discount , code);
+
+    public StandardDiscountCard(Integer id, int discount, Integer code) {
+        super(id, discount, code);
     }
 
 

@@ -1,14 +1,13 @@
 package com.nikolai.util;
 
-import com.nikolai.model.Product;
-import com.nikolai.model.ProductOrder;
 import com.nikolai.model.Receipt;
+import com.nikolai.model.product.Product;
+import com.nikolai.model.product.ProductOrder;
 import com.nikolai.service.ReceiptService;
 
 import java.util.Map;
 
 public class ReceiptFormatter {
-
 
     private final ReceiptService receiptService;
 
@@ -20,18 +19,13 @@ public class ReceiptFormatter {
     public String format(Receipt receipt) {
 
         StringBuilder result = new StringBuilder();
-
-
-
         /*
          *  dots amount in View
          * */
 
-        int dots_in_row = 60;
-        int dots_in_side = 30;
-        int dots_in_last = 22;
-
-
+        int dots_in_row = 107;
+        int dots_in_side = 50;
+        int dots_in_last = 57;
 
         /*
          *
@@ -80,6 +74,15 @@ public class ReceiptFormatter {
             result.append(".".repeat(dots_in_row - s_eq_length)).append(discountPrice).append("*").append(quantity).append("=").append(discountSum);
             result.append("\n");
         }
+
+        var summaryPrice = receiptService.summaryPrice();
+        var summaryDiscountedPrice = receiptService.summaryDiscountedPrice();
+
+        result.append(".".repeat(dots_in_row)).append("\n");
+        result.append(".".repeat(dots_in_side)).append("Sum").append(".".repeat(dots_in_side + 4 - (summaryPrice + "").length()));
+        result.append(summaryPrice).append("\n");
+        result.append(".".repeat(dots_in_side)).append("Discounted sum").append(".".repeat(dots_in_side - 7 - (summaryDiscountedPrice + "").length()));
+        result.append(summaryDiscountedPrice).append("\n");
 
         return result.toString();
     }

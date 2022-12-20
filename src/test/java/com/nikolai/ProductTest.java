@@ -1,6 +1,6 @@
 package com.nikolai;
 
-import com.nikolai.model.Product;
+import com.nikolai.model.product.Product;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

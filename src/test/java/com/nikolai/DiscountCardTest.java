@@ -1,6 +1,6 @@
 package com.nikolai;
 
-import com.nikolai.decorator.DiscountCard;
+import com.nikolai.model.card.DiscountCard;
 import com.nikolai.decorator.StandardDiscountCard;
 import com.nikolai.decorator.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;

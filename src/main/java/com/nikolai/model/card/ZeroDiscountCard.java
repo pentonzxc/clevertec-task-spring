@@ -1,17 +1,17 @@
-package com.nikolai.decorator;
+package com.nikolai.model.card;
 
 public class ZeroDiscountCard extends DiscountCard {
 
-   public ZeroDiscountCard(){
-       super();
-   }
+    public ZeroDiscountCard() {
+        super();
+    }
 
     public ZeroDiscountCard(Integer id, int discount) {
         super(id, discount);
     }
 
-    public ZeroDiscountCard(Integer id , int discount , Integer code) {
-       super(id, discount , code);
+    public ZeroDiscountCard(Integer id, int discount, Integer code) {
+        super(id, discount, code);
     }
 
     @Override

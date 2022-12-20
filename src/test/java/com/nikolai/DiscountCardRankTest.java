@@ -1,6 +1,7 @@
 package com.nikolai;
 
 import com.nikolai.decorator.*;
+import com.nikolai.model.card.DiscountCard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

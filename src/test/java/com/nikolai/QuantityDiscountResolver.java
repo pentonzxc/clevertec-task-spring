@@ -3,7 +3,7 @@ package com.nikolai;
 import com.nikolai.constants.CardRankConstants;
 import com.nikolai.constants.ProductConstants;
 import com.nikolai.decorator.BronzeDiscountCard;
-import com.nikolai.decorator.DiscountCard;
+import com.nikolai.model.card.DiscountCard;
 import com.nikolai.decorator.StandardDiscountCard;
 import org.junit.jupiter.api.Test;
 

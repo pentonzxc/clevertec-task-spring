@@ -2,12 +2,14 @@ package com.nikolai.parser;
 
 import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.model.Receipt;
+import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Set;
 
+@Component("receiptParserProvider")
 public class ReceiptParserProvider implements ParserProvider<Receipt> {
     private final Set<ReceiptParser> parsers = new HashSet<>();
 

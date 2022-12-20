@@ -1,17 +1,16 @@
 package com.nikolai.service;
 
-import com.nikolai.decorator.DiscountCard;
-import com.nikolai.model.Product;
-import com.nikolai.model.ProductOrder;
 import com.nikolai.model.Receipt;
+import com.nikolai.model.card.DiscountCard;
+import com.nikolai.model.product.Product;
+import com.nikolai.model.product.ProductOrder;
 import com.nikolai.util.ProductDiscountResolver;
 
 import java.util.Map;
 
+
 public class ReceiptService {
     private final Receipt receipt;
-
-//    private final Map<Integer, Pair<Double, Double>> diffAndRealSumPerProduct = new HashMap<>();
 
     private double cachedRealSummary = 0;
 

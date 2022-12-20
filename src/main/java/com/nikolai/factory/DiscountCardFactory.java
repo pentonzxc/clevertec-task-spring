@@ -1,6 +1,7 @@
 package com.nikolai.factory;
 
-import com.nikolai.decorator.DiscountCard;
+import com.nikolai.model.card.DiscountCard;
+
 
 public interface DiscountCardFactory {
     DiscountCard produce();

@@ -1,8 +1,14 @@
-package com.nikolai.model;
+package com.nikolai.model.product;
+
+import jakarta.persistence.*;
 
 import java.util.Objects;
 
+@Entity
+@Table(name = "product", schema = "clevertec_task")
 public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Double price;
 
@@ -28,12 +34,12 @@ public class Product {
         this.id = id;
     }
 
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
     public Double getPrice() {
         return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     @Override

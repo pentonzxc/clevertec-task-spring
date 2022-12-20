@@ -1,8 +1,18 @@
-package com.nikolai.decorator;
+package com.nikolai.model.card;
 
+
+import com.nikolai.converter.CardCodeConverter;
+import jakarta.persistence.*;
+
+
+//@Entity
+@MappedSuperclass
 public abstract class DiscountCard {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer discount;
+    @Convert(converter = CardCodeConverter.class)
     private Integer code;
 
     public DiscountCard() {
@@ -41,11 +51,11 @@ public abstract class DiscountCard {
 
     public abstract String type();
 
-    public void setDiscount(Integer discount) {
-        this.discount = discount;
-    }
-
     public Integer getDiscount() {
         return discount;
+    }
+
+    public void setDiscount(Integer discount) {
+        this.discount = discount;
     }
 }

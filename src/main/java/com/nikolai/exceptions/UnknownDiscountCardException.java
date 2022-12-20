@@ -1,7 +1,11 @@
 package com.nikolai.exceptions;
 
-public class UnknownDiscountCardException extends RuntimeException{
+public class UnknownDiscountCardException extends RuntimeException {
     public UnknownDiscountCardException() {
-        super();
+        super("Unknown card");
+    }
+
+    public UnknownDiscountCardException(String message) {
+        super(message);
     }
 }
