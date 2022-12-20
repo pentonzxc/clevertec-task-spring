@@ -1,10 +1,10 @@
 package com.nikolai;
 
-import com.nikolai.decorator.StandardDiscountCard;
-import com.nikolai.decorator.ZeroDiscountCard;
 import com.nikolai.factory.DiscountCardFactory;
 import com.nikolai.factory.StandardDiscountCardFactory;
 import com.nikolai.factory.ZeroDiscountCardFactory;
+import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.card.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

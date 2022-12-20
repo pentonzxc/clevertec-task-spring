@@ -4,7 +4,7 @@ import com.nikolai.constants.CardRankConstants;
 import com.nikolai.constants.ProductConstants;
 import com.nikolai.decorator.BronzeDiscountCard;
 import com.nikolai.model.card.DiscountCard;
-import com.nikolai.decorator.StandardDiscountCard;
+import com.nikolai.model.card.StandardDiscountCard;
 import org.junit.jupiter.api.Test;
 
 public class QuantityDiscountResolver {

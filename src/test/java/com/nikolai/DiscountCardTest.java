@@ -1,8 +1,8 @@
 package com.nikolai;
 
 import com.nikolai.model.card.DiscountCard;
-import com.nikolai.decorator.StandardDiscountCard;
-import com.nikolai.decorator.ZeroDiscountCard;
+import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.card.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

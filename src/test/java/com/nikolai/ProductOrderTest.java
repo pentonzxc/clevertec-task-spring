@@ -1,7 +1,7 @@
 package com.nikolai;
 
 import com.nikolai.model.product.Product;
-import com.nikolai.dto.ProductOrder;
+import com.nikolai.model.product.ProductOrder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

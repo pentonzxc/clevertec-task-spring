@@ -1,10 +1,10 @@
 package com.nikolai;
 
-import com.nikolai.decorator.StandardDiscountCard;
-import com.nikolai.decorator.ZeroDiscountCard;
+import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.card.ZeroDiscountCard;
 import com.nikolai.model.product.Product;
-import com.nikolai.dto.ProductOrder;
 import com.nikolai.model.Receipt;
+import com.nikolai.model.product.ProductOrder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

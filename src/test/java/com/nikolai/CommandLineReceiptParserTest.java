@@ -1,7 +1,7 @@
 package com.nikolai;
 
-import com.nikolai.decorator.StandardDiscountCard;
 import com.nikolai.exceptions.UnsupportedPatternException;
+import com.nikolai.model.card.StandardDiscountCard;
 import com.nikolai.parser.CommandLineReceiptParser;
 import com.nikolai.parser.ReceiptParser;
 import com.nikolai.storage.DiscountCardStorage;
