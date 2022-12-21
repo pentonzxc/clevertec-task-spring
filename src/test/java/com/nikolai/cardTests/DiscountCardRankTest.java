@@ -1,4 +1,4 @@
-package com.nikolai;
+package com.nikolai.cardTests;
 
 import com.nikolai.decorator.*;
 import com.nikolai.model.card.DiscountCard;

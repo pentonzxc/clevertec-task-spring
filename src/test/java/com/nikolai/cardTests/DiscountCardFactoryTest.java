@@ -1,4 +1,4 @@
-package com.nikolai;
+package com.nikolai.cardTests;
 
 import com.nikolai.factory.DiscountCardFactory;
 import com.nikolai.factory.StandardDiscountCardFactory;

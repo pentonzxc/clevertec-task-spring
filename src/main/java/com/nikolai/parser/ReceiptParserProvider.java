@@ -1,11 +1,12 @@
 package com.nikolai.parser;
 
+import com.nikolai.exceptions.UnknownDiscountCardException;
+import com.nikolai.exceptions.UnknownProductException;
 import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.model.Receipt;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
-import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Set;
 
@@ -22,7 +23,8 @@ public class ReceiptParserProvider implements ParserProvider<Receipt> {
     }
 
     @Override
-    public Receipt parse(String str) throws UnsupportedPatternException, InputMismatchException {
+    public Receipt parse(String str) throws UnsupportedPatternException,
+            UnknownDiscountCardException, UnknownProductException {
         for (ReceiptParser parser : parsers) {
             try {
                 return parser.parse(str);

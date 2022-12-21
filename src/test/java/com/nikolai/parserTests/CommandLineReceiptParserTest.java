@@ -1,20 +1,35 @@
-package com.nikolai;
+package com.nikolai.parserTests;
 
 import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.product.Product;
 import com.nikolai.parser.CommandLineReceiptParser;
-import com.nikolai.parser.ReceiptParser;
-import com.nikolai.storage.DiscountCardStorage;
+import com.nikolai.service.DiscountCardService;
+import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+
+import java.util.Optional;
 
 public class CommandLineReceiptParserTest {
-    private static ReceiptParser cliReceiptParser;
+    @InjectMocks
+    private CommandLineReceiptParser cliReceiptParser;
 
-    @BeforeAll
-    public static void setUp() {
-        cliReceiptParser = new CommandLineReceiptParser();
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private DiscountCardService discountCardService;
+
+
+    @BeforeEach
+    public void init() {
+        MockitoAnnotations.openMocks(this);
     }
 
 
@@ -22,12 +37,21 @@ public class CommandLineReceiptParserTest {
     public void givenCorrectInputCommandLine_thenReturnReceipt() {
         String withoutCard = "2-3 1-5 2-1";
         String withCard = "2-3 1-5 2-1 card-1234";
-        String onlyCard = "card-1234";
         String oneProduct = "1-5";
-        var discountCard = new StandardDiscountCard();
-        discountCard.setId(5);
-        discountCard.setCode(1234);
-        DiscountCardStorage.add(discountCard.getCode(), discountCard);
+
+        Mockito.when(discountCardService.findCardByCode(1234)).thenReturn(
+                Optional.of(new StandardDiscountCard(1, 20, 1234))
+        );
+
+        var discountCard = discountCardService.findCardByCode(1234).get();
+
+        Mockito.when(productService.findProductById(1)).thenReturn(
+                Optional.of(new Product(1, 2D))
+        );
+
+        Mockito.when(productService.findProductById(2)).thenReturn(
+                Optional.of(new Product(2, 5D))
+        );
 
 
         Assertions.assertDoesNotThrow(() -> {
@@ -50,14 +74,6 @@ public class CommandLineReceiptParserTest {
         });
 
         Assertions.assertDoesNotThrow(() -> {
-            var receipt = cliReceiptParser.parse(onlyCard);
-            int expectedSize = 0;
-
-            Assertions.assertEquals(discountCard, receipt.getDiscountCard());
-            Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
-        });
-
-        Assertions.assertDoesNotThrow(() -> {
             var receipt = cliReceiptParser.parse(oneProduct);
             int expectedSize = 1;
 
@@ -68,14 +84,29 @@ public class CommandLineReceiptParserTest {
 
     @Test
     public void givenMismatchInputCommandLine_thenReturnUnknownPatternException() {
+
         String emptyLine = "";
         String orderWithoutQuantity = "1- 2-5 card-1222";
         String orderWithZeroQuantity = "1-0";
         String orderWithoutId = "-2 2-3 card-1222";
+        String onlyCard = "card-1234";
         String invalidCardFormat1 = "card-123";
         String invalidCardFormat2 = "card-12344";
         String invalidCardFormat3 = "card-1234a";
         String invalidCardFormat4 = "card1234";
+
+        Mockito.when(discountCardService.findCardByCode(1234)).thenReturn(
+                Optional.of(new StandardDiscountCard(1, 20, 1234))
+        );
+
+        Mockito.when(productService.findProductById(1)).thenReturn(
+                Optional.of(new Product(1, 2D))
+        );
+
+        Mockito.when(productService.findProductById(2)).thenReturn(
+                Optional.of(new Product(2, 5D))
+        );
+
 
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(emptyLine));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(orderWithoutId));
@@ -83,6 +114,7 @@ public class CommandLineReceiptParserTest {
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(orderWithZeroQuantity));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(invalidCardFormat1));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(invalidCardFormat2));
+        Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(onlyCard));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(invalidCardFormat3));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(invalidCardFormat4));
     }

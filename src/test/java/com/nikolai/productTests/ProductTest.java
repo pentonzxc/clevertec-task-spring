@@ -1,4 +1,4 @@
-package com.nikolai;
+package com.nikolai.productTests;
 
 import com.nikolai.model.product.Product;
 import org.junit.jupiter.api.Assertions;

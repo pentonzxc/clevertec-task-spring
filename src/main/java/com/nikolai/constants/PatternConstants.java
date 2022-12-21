@@ -8,5 +8,6 @@ public class PatternConstants {
     public static String WEB_PRODUCT_QUANTITY_PATTERN = ("quantity=([1-9]\\d*)");
 
     public static String WEB_DISCOUNT_CARD_PATTERN = ("card=(\\d{4})");
+
     public static String DISCOUNT_CARD_PATTERN = ("card-\\d{4}");
 }

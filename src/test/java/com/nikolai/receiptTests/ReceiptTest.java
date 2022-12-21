@@ -1,4 +1,4 @@
-package com.nikolai;
+package com.nikolai.receiptTests;
 
 import com.nikolai.model.card.StandardDiscountCard;
 import com.nikolai.model.card.ZeroDiscountCard;

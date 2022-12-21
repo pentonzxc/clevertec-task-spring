@@ -24,14 +24,10 @@ public class WebReceiptParser extends ReceiptParser {
     private final Pattern PRODUCT_QUANTITY_PATTERN = Pattern.compile(PatternConstants.WEB_PRODUCT_QUANTITY_PATTERN);
     private final Pattern DISCOUNT_CARD_PATTERN = Pattern.compile(PatternConstants.WEB_DISCOUNT_CARD_PATTERN);
 
-    private final ProductService productService;
-
-    private final DiscountCardService cardService;
 
     @Autowired
-    public WebReceiptParser(ProductService productService, DiscountCardService cardService) {
-        this.productService = productService;
-        this.cardService = cardService;
+    public WebReceiptParser(DiscountCardService cardService, ProductService productService) {
+        super(cardService, productService);
     }
 
 

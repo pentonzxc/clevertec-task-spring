@@ -5,13 +5,25 @@ import com.nikolai.exceptions.UnknownDiscountCardException;
 import com.nikolai.exceptions.UnknownProductException;
 import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.model.Receipt;
+import com.nikolai.model.card.StandardDiscountCard;
 import com.nikolai.model.product.Product;
 import com.nikolai.model.product.ProductOrder;
-import com.nikolai.storage.DiscountCardStorage;
-import com.nikolai.storage.ProductStorage;
+import com.nikolai.service.DiscountCardService;
+import com.nikolai.service.ProductService;
 import org.springframework.util.StringUtils;
 
+import java.util.Optional;
+
 public abstract class ReceiptParser implements Parser<Receipt> {
+    protected final DiscountCardService cardService;
+    protected final ProductService productService;
+
+    public ReceiptParser(DiscountCardService cardService, ProductService productService) {
+        this.cardService = cardService;
+        this.productService = productService;
+    }
+
+
     @Override
     public Receipt parse(String text) throws UnsupportedPatternException, UnknownProductException, UnknownDiscountCardException {
 
@@ -24,24 +36,29 @@ public abstract class ReceiptParser implements Parser<Receipt> {
             var line = prepareText(text);
             String[] strings = line.split(" ");
 
-            for (String str : strings) {
+            for (int i = 0; i < strings.length; i++) {
+                String str = strings[i];
                 if (str.matches(PatternConstants.ORDER_PATTERN)) {
                     var data = str.split("-");
                     var product_id = Integer.parseInt(data[0]);
                     var quantity = Integer.parseInt(data[1]);
-                    try {
-                        Product product = ProductStorage.get(product_id);
-                        receipt.add(new ProductOrder(product, quantity));
-                    } catch (NullPointerException ex) {
-                        throw new UnknownProductException("Product with " + product_id + " don't exist");
+                    Optional<Product> productOpt = productService.findProductById(product_id);
+
+                    if (productOpt.isEmpty()) {
+                        throw new UnknownProductException("Product with id " + product_id + " doesn't exist");
                     }
-                } else if (str.matches(PatternConstants.DISCOUNT_CARD_PATTERN)) {
+
+                    receipt.add(new ProductOrder(productOpt.get(), quantity));
+
+                } else if (i != 0 && str.matches(PatternConstants.DISCOUNT_CARD_PATTERN)) {
                     int card_code = Integer.parseInt(str.split("-")[1]);
-                    try {
-                        receipt.setDiscountCard(DiscountCardStorage.get(card_code));
-                    } catch (NullPointerException ex) {
+                    Optional<StandardDiscountCard> discountCard = cardService.findCardByCode(card_code);
+
+                    if (discountCard.isEmpty()) {
                         throw new UnknownDiscountCardException("Card with code " + card_code + " not exist");
                     }
+
+                    receipt.setDiscountCard(discountCard.get());
                 } else {
                     throw new UnsupportedPatternException();
                 }

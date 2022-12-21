@@ -4,3 +4,9 @@ spring:
     password: postgres
     username: postgres
     driver-class-name: org.postgresql.Driver
+
+
+
+receiptFile:
+  in: src/main/resources/in.txt
+  out: src/main/resources/out.txt

@@ -1,5 +1,8 @@
 package com.nikolai.parser;
 
+import com.nikolai.service.DiscountCardService;
+import com.nikolai.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
@@ -9,6 +12,11 @@ import java.io.IOException;
 
 @Component("fileReceiptParser")
 public class FileReceiptParser extends ReceiptParser {
+
+    @Autowired
+    public FileReceiptParser(DiscountCardService cardService, ProductService productService) {
+        super(cardService, productService);
+    }
 
     @Override
     protected String prepareText(String fileName) throws IOException {

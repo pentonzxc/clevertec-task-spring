@@ -54,14 +54,20 @@ public class ReceiptFormatter {
             result.append(product.getId()).append(".".repeat(dots_in_side - id_length)).append(quantity);
 
             Double pureSum = product.getPrice() * quantity;
+            var pureSumFormat = String.format("%.3f", pureSum);
+            var priceFormat = String.format("%.3f", product.getPrice());
 
-            int f_eq_length = product.getPrice().toString().length() + quantity_length + 2 + pureSum.toString().length();
+            int f_eq_length = priceFormat.length() + quantity_length + 2 + pureSumFormat.length();
 
             result.append(".".repeat(dots_in_last - f_eq_length - quantity_length));
-            result.append(product.getPrice()).append("*").append(quantity).append("=").append(pureSum).append("\n");
+            result.append(priceFormat);
+            result.append("*").append(quantity).append("=").append(pureSumFormat).append("\n");
 
             Double discountPrice = receiptService.discountPrice(product);
             Double discountSum = discountPrice * quantity;
+
+            var discountPriceFormat = String.format("%.3f", discountPrice);
+            var discountSumFormat = String.format("%.3f", discountSum);
 
             /*
              *
@@ -69,20 +75,24 @@ public class ReceiptFormatter {
              *
              * */
 
-            int s_eq_length = discountPrice.toString().length() + quantity_length + 2 + discountSum.toString().length();
+            int s_eq_length = discountPriceFormat.length() + quantity_length + 2 + discountSumFormat.length();
 
-            result.append(".".repeat(dots_in_row - s_eq_length)).append(discountPrice).append("*").append(quantity).append("=").append(discountSum);
+            result.append(".".repeat(dots_in_row - s_eq_length)).append(discountPriceFormat);
+            result.append("*").append(quantity).append("=").append(discountSumFormat);
             result.append("\n");
         }
 
         var summaryPrice = receiptService.summaryPrice();
         var summaryDiscountedPrice = receiptService.summaryDiscountedPrice();
 
+        var summaryPriceFormat = String.format("%.3f", summaryPrice);
+        var summaryDiscountPriceFormat = String.format("%.3f", summaryDiscountedPrice);
+
         result.append(".".repeat(dots_in_row)).append("\n");
-        result.append(".".repeat(dots_in_side)).append("Sum").append(".".repeat(dots_in_side + 4 - (summaryPrice + "").length()));
-        result.append(summaryPrice).append("\n");
-        result.append(".".repeat(dots_in_side)).append("Discounted sum").append(".".repeat(dots_in_side - 7 - (summaryDiscountedPrice + "").length()));
-        result.append(summaryDiscountedPrice).append("\n");
+        result.append(".".repeat(dots_in_side)).append("Sum").append(".".repeat(dots_in_side + 4 - summaryPriceFormat.length()));
+        result.append(summaryPriceFormat).append("\n");
+        result.append(".".repeat(dots_in_side)).append("Discounted sum").append(".".repeat(dots_in_side - 7 - summaryDiscountPriceFormat.length()));
+        result.append(String.format("%.3f", summaryDiscountedPrice)).append("\n");
 
         return result.toString();
     }

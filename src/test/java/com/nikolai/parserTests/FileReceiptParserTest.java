@@ -1,33 +1,46 @@
-package com.nikolai;
+package com.nikolai.parserTests;
 
 import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.product.Product;
 import com.nikolai.parser.FileReceiptParser;
-import com.nikolai.parser.ReceiptParser;
-import com.nikolai.storage.DiscountCardStorage;
-import org.junit.jupiter.api.*;
+import com.nikolai.service.DiscountCardService;
+import com.nikolai.service.ProductService;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FileReceiptParserTest {
-    private static ReceiptParser fileReceiptParser;
+    @InjectMocks
+    private FileReceiptParser fileReceiptParser;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private DiscountCardService discountCardService;
 
     private File file;
 
-    @BeforeAll
-    public static void setUp() {
-        fileReceiptParser = new FileReceiptParser();
-    }
 
     @BeforeEach
     public void init() {
         file = new File(UUID.randomUUID() + ".txt");
         try {
+            MockitoAnnotations.openMocks(this);
             file.createNewFile();
         } catch (IOException ignored) {
         }
@@ -46,10 +59,25 @@ public class FileReceiptParserTest {
         String orderWithZeroQuantity = "1-0";
         String orderWithoutId = "-2 2-3 card-1222";
         String invalidCardFormat1 = "card-123";
+        String onlyCard = "card-1234";
         String invalidCardFormat2 = "card-12344";
         String invalidCardFormat3 = "card-1234a";
         String invalidCardFormat4 = "card1234";
 
+        Mockito.when(discountCardService.findCardByCode(1234)).thenReturn(
+                Optional.of(new StandardDiscountCard(1, 20, 1234))
+        );
+
+        Mockito.when(productService.findProductById(1)).thenReturn(
+                Optional.of(new Product(1, 2D))
+        );
+
+        Mockito.when(productService.findProductById(2)).thenReturn(
+                Optional.of(new Product(2, 5D))
+        );
+
+
+        Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(onlyCard));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(emptyLine));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(orderWithoutId));
         Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(orderWithZeroQuantity));
@@ -84,6 +112,11 @@ public class FileReceiptParserTest {
                     StandardOpenOption.TRUNCATE_EXISTING);
             Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(file.getAbsolutePath()));
 
+            Files.writeString(path, onlyCard,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
+            Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(file.getAbsolutePath()));
+
             Files.writeString(path, invalidCardFormat3, StandardOpenOption.CREATE,
                     StandardOpenOption.TRUNCATE_EXISTING);
             Assertions.assertThrows(UnsupportedPatternException.class, () -> fileReceiptParser.parse(file.getAbsolutePath()));
@@ -102,12 +135,21 @@ public class FileReceiptParserTest {
     public void givenCorrectInputFile_thenReturnReceipt() {
         String withoutCard = "2-3 1-5 2-1";
         String withCard = "2-3 1-5 2-1 card-1234";
-        String onlyCard = "card-1234";
         String oneProduct = "1-5";
-        var discountCard = new StandardDiscountCard();
-        discountCard.setId(5);
-        discountCard.setCode(1234);
-        DiscountCardStorage.add(discountCard.getCode(), discountCard);
+
+        Mockito.when(discountCardService.findCardByCode(1234)).thenReturn(
+                Optional.of(new StandardDiscountCard(1, 20, 1234))
+        );
+
+        var discountCard = discountCardService.findCardByCode(1234).get();
+
+        Mockito.when(productService.findProductById(1)).thenReturn(
+                Optional.of(new Product(1, 2D))
+        );
+
+        Mockito.when(productService.findProductById(2)).thenReturn(
+                Optional.of(new Product(2, 5D))
+        );
 
         var path = Paths.get(file.getAbsolutePath());
 
@@ -134,22 +176,11 @@ public class FileReceiptParserTest {
             int expectedSize = 2;
 
             Assertions.assertEquals(discountCard, receipt.getDiscountCard());
-            Assertions.assertEquals(2, receipt.getOrdersCount());
+            Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
             Assertions.assertEquals(4, receipt.get(2).getQuantity());
             Assertions.assertEquals(5, receipt.get(1).getQuantity());
         });
 
-        Assertions.assertDoesNotThrow(() -> {
-            Files.writeString(path, onlyCard,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
-
-            var receipt = fileReceiptParser.parse(file.getAbsolutePath());
-            int expectedSize = 0;
-
-            Assertions.assertEquals(discountCard, receipt.getDiscountCard());
-            Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
-        });
 
         Assertions.assertDoesNotThrow(() -> {
             Files.writeString(path, oneProduct,
@@ -160,7 +191,7 @@ public class FileReceiptParserTest {
             int expectedSize = 1;
 
             Assertions.assertEquals(5, receipt.get(1).getQuantity());
-            Assertions.assertEquals(expectedSize , receipt.getOrdersCount());
+            Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
         });
     }
 }
