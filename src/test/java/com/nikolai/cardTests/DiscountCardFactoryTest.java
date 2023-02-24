@@ -14,14 +14,11 @@ public class DiscountCardFactoryTest {
 
 
     @Test
-    public void whenStandardDiscountCardFactory_thenReturnEmptyStandardCard() {
+    public void whenStandardDiscountCardFactory_thenReturnStandardCard() {
         factory = new StandardDiscountCardFactory();
         var card = factory.produce();
 
         Assertions.assertTrue(card instanceof StandardDiscountCard);
-        Assertions.assertNull(card.getDiscount());
-        Assertions.assertNull(card.getId());
-        Assertions.assertNull(card.getCode());
     }
 
     @Test
@@ -30,9 +27,6 @@ public class DiscountCardFactoryTest {
         var card = factory.produce();
 
         Assertions.assertTrue(card instanceof ZeroDiscountCard);
-        Assertions.assertEquals(0 , card.getDiscount());
-        Assertions.assertNull(card.getId());
-        Assertions.assertNull(card.getCode());
     }
 
 

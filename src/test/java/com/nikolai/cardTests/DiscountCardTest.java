@@ -4,80 +4,172 @@ import com.nikolai.model.card.DiscountCard;
 import com.nikolai.model.card.StandardDiscountCard;
 import com.nikolai.model.card.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class DiscountCardTest {
-    private static DiscountCard standartDiscountCard;
 
-    private static DiscountCard zeroDiscountCard;
+    @Nested
+    class ZeroDiscountCardTest {
+        DiscountCard discountCard;
 
-    @BeforeAll
-    public static void init() {
-        standartDiscountCard = new StandardDiscountCard(1, 2);
-        zeroDiscountCard = new ZeroDiscountCard(2, 3);
+        @BeforeEach
+        public void init() {
+            discountCard = new ZeroDiscountCard(1, 2);
+        }
+
+
+        @Test
+        public void whenCardWithoutCode_thenGetCodeReturnNull() {
+            Assertions.assertNull(discountCard.getCode());
+        }
+
+        @Test
+        public void whenSetCode_thenGetCodeReturnCode() {
+            int expectedCode = 1234;
+            discountCard.setCode(expectedCode);
+
+            Assertions.assertEquals(expectedCode, discountCard.getCode());
+        }
+
+
+        @Test
+        public void whenGetId_thenReturnId() {
+            int expectedId = 2;
+            discountCard = new ZeroDiscountCard(expectedId, 0);
+
+            Assertions.assertEquals(expectedId, discountCard.getId());
+        }
+
+        @Test
+        public void whenCardWithoutId_thenGetIdReturnNull() {
+            discountCard = new ZeroDiscountCard();
+
+            Assertions.assertNull(discountCard.getId());
+        }
+
+        @Test
+        public void whenSetId_thenGetIdReturnId() {
+            int expectedId = 2;
+            discountCard.setId(expectedId);
+
+            Assertions.assertEquals(expectedId, discountCard.getId());
+        }
+
+        @Test
+        public void whenGetDiscount_thenReturnZero() {
+            int expectedDiscount = 0;
+
+            Assertions.assertEquals(expectedDiscount, discountCard.getDiscount());
+        }
+
+        @Test
+        public void whenCardWithoutDiscount_thenGetDiscountZero() {
+            int expectedDiscount = 0;
+
+            discountCard = new ZeroDiscountCard();
+            Assertions.assertEquals(expectedDiscount, discountCard.getDiscount());
+        }
+
+        @Test
+        public void whenSetDiscount_thenGetDiscountReturnZero() {
+            int expectedDiscount = 0;
+            discountCard.setDiscount(2);
+
+            Assertions.assertEquals(expectedDiscount, discountCard.getDiscount());
+        }
+
+
+        @Test
+        public void whenGetType_thenReturnType() {
+            Assertions.assertEquals("Zero Discount Card", discountCard.type());
+        }
+
+        @Test
+        public void whenConstructorWithIdAndDiscountAndCode_thenReturnParamsSum() {
+            int expectedId = 1;
+            int expectedCode = 2;
+            discountCard = new ZeroDiscountCard(expectedId, 0, expectedCode);
+
+            Assertions.assertEquals(expectedId + expectedCode , discountCard.getCode() + discountCard.getId());
+        }
     }
 
 
-    @Test
-    public void whenCreateCardWithId_returnId() {
-        Assertions.assertEquals(1, standartDiscountCard.getId());
-        Assertions.assertEquals(2, zeroDiscountCard.getId());
-    }
+    @Nested
+    class StandardDiscountCardTest {
+        DiscountCard discountCard;
+
+        @BeforeEach
+        public void init() {
+            discountCard = new StandardDiscountCard(1, 2);
+        }
+
+        @Test
+        public void whenCardWithoutCode_thenGetCodeReturnNull() {
+            Assertions.assertNull(discountCard.getCode());
+        }
+
+        @Test
+        public void whenSetCode_thenGetCodeReturnCode() {
+            int expectedCode = 1234;
+            discountCard.setCode(expectedCode);
+
+            Assertions.assertEquals(expectedCode, discountCard.getCode());
+        }
 
 
-    @Test
-    public void whenCreateCardWithDiscount_returnDiscount() {
-        Assertions.assertEquals(2, standartDiscountCard.getDiscount());
-    }
+        @Test
+        public void whenGetId_thenReturnId() {
+            int expectedId = 2;
+            discountCard = new ZeroDiscountCard(expectedId, 0);
+
+            Assertions.assertEquals(expectedId, discountCard.getId());
+        }
+
+        @Test
+        public void whenCardWithoutId_thenGetIdReturnNull() {
+            discountCard = new StandardDiscountCard();
+
+            Assertions.assertNull(discountCard.getId());
+        }
+
+        @Test
+        public void whenSetId_thenGetIdReturnId() {
+            int expectedId = 2;
+            discountCard.setId(expectedId);
+
+            Assertions.assertEquals(expectedId, discountCard.getId());
+        }
+
+        @Test
+        public void whenGetDiscount_thenReturnDiscount() {
+            int expectedDiscount = 2;
+            discountCard = new StandardDiscountCard(0, 2);
+
+            Assertions.assertEquals(expectedDiscount, discountCard.getDiscount());
+        }
+
+        @Test
+        public void whenCardWithoutDiscount_thenGetDiscountReturnNull() {
+            discountCard = new StandardDiscountCard();
+            Assertions.assertNull(discountCard.getDiscount());
+        }
+
+        @Test
+        public void whenSetDiscount_thenGetDiscountReturnDiscount() {
+            int expectedDiscount = 2;
+            discountCard.setDiscount(expectedDiscount);
+
+            Assertions.assertEquals(expectedDiscount, discountCard.getDiscount());
+        }
 
 
-    @Test
-    public void whenZeroDiscountCard_returnDiscountEqualsZero() {
-        ZeroDiscountCard negativeCard = new ZeroDiscountCard(2, -5);
-
-        ZeroDiscountCard emptyCard = new ZeroDiscountCard();
-
-        Assertions.assertEquals(0, emptyCard.getDiscount());
-        Assertions.assertEquals(0, negativeCard.getDiscount());
-        Assertions.assertEquals(0, zeroDiscountCard.getDiscount());
-    }
-
-    @Test
-    public void whenZeroDiscountCardNewDiscount_returnDiscountEqualsZero() {
-        ZeroDiscountCard zeroCard = new ZeroDiscountCard(2, -5);
-        zeroCard.setDiscount(5);
-        Assertions.assertEquals(0, zeroCard.getDiscount());
-    }
-
-    @Test
-    public void whenZeroDiscountCard_returnTypeEquals() {
-        Assertions.assertEquals("Zero Discount Card", zeroDiscountCard.type());
-    }
-
-
-    @Test
-    public void whenStandardDiscountCard_returnTypeEquals() {
-        Assertions.assertEquals("Standard Discount Card", standartDiscountCard.type());
-    }
-
-    @Test
-    public void whenStandardEmptyDiscountCard_thenReturnDiscount() {
-        StandardDiscountCard card = new StandardDiscountCard();
-        Assertions.assertNull(card.getDiscount());
-    }
-
-
-    @Test
-    public void whenZeroEmptyDiscountCard_thenReturnId() {
-        ZeroDiscountCard card = new ZeroDiscountCard();
-        Assertions.assertNull(card.getId());
-    }
-
-    @Test
-    public void whenStandardEmptyDiscountCard_thenReturnId() {
-        StandardDiscountCard card = new StandardDiscountCard();
-        Assertions.assertNull(card.getId());
+        @Test
+        public void whenGetType_thenReturnType() {
+            Assertions.assertEquals("Standard Discount Card", discountCard.type());
+        }
     }
 
 }
