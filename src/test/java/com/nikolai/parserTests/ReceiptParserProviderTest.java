@@ -5,6 +5,7 @@ import com.nikolai.parser.*;
 import com.nikolai.service.DiscountCardService;
 import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -13,13 +14,19 @@ import org.mockito.MockitoAnnotations;
 import java.util.List;
 
 public class ReceiptParserProviderTest {
-    private ParserProvider<Receipt> provider = new ReceiptParserProvider();
 
     @Mock
-    private static ProductService productService;
+    ProductService productService;
 
     @Mock
-    private static DiscountCardService cardService;
+    DiscountCardService cardService;
+
+    static ParserProvider<Receipt> provider;
+
+    @BeforeAll
+    public static void global() {
+        provider = new ReceiptParserProvider();
+    }
 
 
     @BeforeEach
@@ -28,7 +35,7 @@ public class ReceiptParserProviderTest {
     }
 
     @Test
-    public void whenRegisterGenericParserReceipt_butNotReceiptParserClass_thenReturnClassCastException() {
+    public void whenRegisterGenericParser_andGenericReceiptNotInstanceReceiptParserClass_thenThrowClassCastException() {
         var receiptParser = new Parser<Receipt>() {
             @Override
             public Receipt parse(String text) throws RuntimeException {
@@ -40,21 +47,19 @@ public class ReceiptParserProviderTest {
     }
 
     @Test
-    public void whenRegisterGenericParserReceipt_butItReceiptParserClass_thenReturnVoid() {
-        var fileReceiptParser = new FileReceiptParser(cardService , productService);
+    public void whenRegisterGenericParser_andGenericReceiptInstanceReceiptParserClass_thenNotThrowException() {
+        var fileReceiptParser = new FileReceiptParser(cardService, productService);
 
-        var anyReceiptParser = new ReceiptParser(cardService , productService) {
+        var anyReceiptParser = new ReceiptParser(cardService, productService) {
             @Override
-            protected String prepareText(String text) throws Exception {
+            protected String prepareText(String text) throws RuntimeException {
                 return null;
             }
         };
 
-        var commandLineReceiptParser = new CommandLineReceiptParser(cardService , productService);
+        var commandLineReceiptParser = new CommandLineReceiptParser(cardService, productService);
 
-        Assertions.assertDoesNotThrow(() -> {
-            provider.register(List.of(fileReceiptParser, anyReceiptParser, commandLineReceiptParser));
-        });
+        Assertions.assertDoesNotThrow(() -> provider.register(List.of(fileReceiptParser, anyReceiptParser, commandLineReceiptParser)));
     }
 
 }
