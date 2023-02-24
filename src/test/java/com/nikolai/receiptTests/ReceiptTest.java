@@ -1,16 +1,20 @@
 package com.nikolai.receiptTests;
 
-import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.Receipt;
 import com.nikolai.model.card.ZeroDiscountCard;
 import com.nikolai.model.product.Product;
-import com.nikolai.model.Receipt;
 import com.nikolai.model.product.ProductOrder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 public class ReceiptTest {
     private Receipt receipt;
@@ -22,158 +26,134 @@ public class ReceiptTest {
 
 
     @Test
-    public void givenProductOrder_thenAddProductOrder() {
-        var product = Mockito.mock(Product.class);
-        Mockito.when(product.getId()).thenReturn(10);
-        var expectedOrder = Mockito.mock(ProductOrder.class);
-
-        Mockito.when(expectedOrder.getProduct()).thenReturn(product);
+    public void whenAdd_thenGetReturnProductOrder() {
+        var id = 2;
+        var expectedOrder = new ProductOrder(new Product(id, 0d), 0);
 
         receipt.add(expectedOrder);
-        ProductOrder actualOrder = receipt.get(expectedOrder.getProduct().getId());
 
-        Assertions.assertEquals(expectedOrder, actualOrder);
+        Assertions.assertSame(expectedOrder, receipt.get(id));
     }
 
     @Test
-    public void givenProductOrders_thenAddThem_returnReceiptSize() {
-        var firstProduct = Mockito.mock(Product.class);
-        var secondProduct = Mockito.mock(Product.class);
+    public void whenAdd_thenGetReturnProductOrderQuantity() {
+        int expectedQuantity = 2, id = 2;
+        receipt.add(new ProductOrder(new Product(id, 0d), expectedQuantity));
 
-        var firstOrder = Mockito.mock(ProductOrder.class);
-        var secondOrder = Mockito.mock(ProductOrder.class);
-
-        Mockito.when(firstProduct.getId()).thenReturn(10);
-        Mockito.when(secondProduct.getId()).thenReturn(11);
-
-
-        Mockito.when(firstOrder.getProduct()).thenReturn(firstProduct);
-        Mockito.when(secondOrder.getProduct()).thenReturn(firstProduct);
-
-
-        receipt.add(firstOrder);
-        receipt.add(secondOrder);
-
-        Assertions.assertEquals(1, receipt.getOrdersCount());
-        Mockito.when(secondOrder.getProduct()).thenReturn(secondProduct);
-
-        receipt.add(secondOrder);
-
-        Assertions.assertNotEquals(1, receipt.getOrdersCount());
-    }
-
-    @Test
-    public void givenProductOrdersWithSameId_thenAddThem_returnQuantity() {
-        var product = Mockito.mock(Product.class);
-
-        var order = new ProductOrder(product, 2);
-        var mockedOrder = Mockito.mock(ProductOrder.class);
-
-        Mockito.when(product.getId()).thenReturn(10);
-
-        Mockito.when(mockedOrder.getQuantity()).thenReturn(3);
-
-        Mockito.when(mockedOrder.getProduct()).thenReturn(product);
-
-        var expectedQuantity = order.getQuantity() + mockedOrder.getQuantity();
-
-        receipt.add(order);
-        receipt.add(mockedOrder);
-        int actualQuantity = receipt.get(product.getId()).getQuantity();
-
-        Assertions.assertEquals(expectedQuantity, actualQuantity);
+        Assertions.assertEquals(expectedQuantity, receipt.get(id).getQuantity());
     }
 
 
     @Test
-    public void whenAddProductOrder_thenGetHis() {
-        var product = Mockito.mock(Product.class);
-        var expected = new ProductOrder(product, 2);
+    public void whenAddProductOrdersWithEqualsProducts_thenGetReturnProductOrderWithMergedQuantity() {
+        int quantity1 = 2, quantity2 = 2, expectedQuantity = quantity1 + quantity2;
+        var id = 1;
 
-        Mockito.when(product.getId()).thenReturn(1);
+        receipt.add(new ProductOrder(new Product(id, 0d), quantity1));
+        receipt.add(new ProductOrder(new Product(id, 0d), quantity2));
 
-        receipt.add(expected);
-
-        var actual = receipt.get(expected.getProduct().getId());
-
-        Assertions.assertEquals(expected, actual);
+        Assertions.assertEquals(expectedQuantity, receipt.get(id).getQuantity());
     }
 
 
     @Test
-    public void givenDiscountCard_whenSetCard_thenGetCard() {
-        var expectedCard = Mockito.mock(StandardDiscountCard.class);
+    public void whenAddProductOrdersWithEqualsProducts_thenOrdersCountReturnMergedOrders() {
+        int expectedSize = 1, id = 1;
+
+        receipt.add(new ProductOrder(new Product(id, 0d), 0));
+        receipt.add(new ProductOrder(new Product(id, 0d), 0));
+
+        Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
+    }
+
+
+    @Test
+    public void whenAddProductOrdersWithDifferentProducts_thenGetReturnProductOrder() {
+        int expectedSize = 2;
+        int id1 = 1, id2 = 2;
+        receipt.add(new ProductOrder(new Product(id1, 0d), 0));
+        receipt.add(new ProductOrder(new Product(id2, 0d), 0));
+
+        Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
+    }
+
+
+    @Test
+    public void whenEmptyReceipt_thenGetDiscountCardReturnNull() {
+        Assertions.assertNull(receipt.getDiscountCard());
+    }
+
+    @Test
+    public void whenSetDiscountCard_thenGetDiscountCardReturnDiscountCard() {
+        var expectedCard = new ZeroDiscountCard();
         receipt.setDiscountCard(expectedCard);
 
-        var actualCard = receipt.getDiscountCard();
-
-        Assertions.assertEquals(expectedCard, actualCard);
+        Assertions.assertSame(expectedCard, receipt.getDiscountCard());
     }
 
-    @Test
-
-    public void givenProductOrders_whenAddAll_thenIterator() {
-        var product1 = Mockito.mock(Product.class);
-        var product2 = Mockito.mock(Product.class);
-        var product3 = Mockito.mock(Product.class);
-        var product4 = Mockito.mock(Product.class);
-
-        Mockito.when(product1.getId()).thenReturn(10);
-        Mockito.when(product2.getId()).thenReturn(11);
-        Mockito.when(product3.getId()).thenReturn(12);
-        Mockito.when(product4.getId()).thenReturn(12);
-
-        var order1 = Mockito.mock(ProductOrder.class);
-        var order2 = Mockito.mock(ProductOrder.class);
-        var order3 = Mockito.mock(ProductOrder.class);
-        var order4 = Mockito.mock(ProductOrder.class);
-
-        Mockito.when(order1.getProduct()).thenReturn(product1);
-        Mockito.when(order2.getProduct()).thenReturn(product2);
-        Mockito.when(order3.getProduct()).thenReturn(product3);
-        Mockito.when(order4.getProduct()).thenReturn(product4);
-
-
-        receipt.add(order1);
-        receipt.add(order2);
-        receipt.add(order3);
-        receipt.add(order4);
-
+    @ParameterizedTest
+    @MethodSource("com.nikolai.receiptTests.ReceiptTest#distinctProductCollection")
+    public void whenAddProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
+        products.forEach((product) -> receipt.add(new ProductOrder(product, 0)));
         var iterator = receipt.iterator();
-
-        var iterOrder1 = iterator.next();
-
-        var iterOrder2 = iterator.next();
-
-        var iterOrder3 = iterator.next();
-
-        Assertions.assertEquals(order1, iterOrder1.getValue());
-        Assertions.assertEquals(order2, iterOrder2.getValue());
-        Assertions.assertNotEquals(order3, iterOrder3.getValue());
-        Assertions.assertNotEquals(order4, iterOrder3.getValue());
-
-        Assertions.assertThrows(NoSuchElementException.class, () -> iterator.next(), "NoSuchElementExceptionExpected was expected");
+        for (var expectedProduct : products) {
+            var product = iterator.next().getValue().getProduct();
+            Assertions.assertSame(expectedProduct, product);
+        }
     }
 
 
+    @ParameterizedTest
+    @MethodSource("com.nikolai.receiptTests.ReceiptTest#notDistinctProductCollection")
+    public void whenAddMergedProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
+        products.forEach((product -> receipt.add(new ProductOrder(product, 0))));
+        var iterator = receipt.iterator();
+        for (var ignored : products) {
+            if (iterator.hasNext()) {
+                iterator.next();
+            } else {
+                Assertions.assertThrows(NoSuchElementException.class, iterator::next);
+            }
+        }
+    }
+
     @Test
-    public void givenDiscountCard_whenSetDiscountCard_thenReturnGetDiscountCard() {
-        var card = Mockito.mock(StandardDiscountCard.class);
+    public void whenToString_thenReturnString() {
+        var id = 1;
+        var order = new ProductOrder(new Product(id, 2d), 0);
+        var card = new ZeroDiscountCard();
+        receipt.add(order);
         receipt.setDiscountCard(card);
 
-        Assertions.assertEquals(card, receipt.getDiscountCard());
+        var expectedToString = "Receipt{" +
+                "orders=" + Map.of(id , order) +
+                ", discountCard=" + card +
+                '}';
+
+        Assertions.assertEquals(expectedToString, receipt.toString());
     }
 
-    @Test
-    public void givenDiscountCard_whenSetNewDiscountCard_thenReturnNewGetDiscountCard() {
-        var standardCard = Mockito.mock(StandardDiscountCard.class);
-        receipt.setDiscountCard(standardCard);
 
-        var zeroCard = Mockito.mock(ZeroDiscountCard.class);
+    private static Stream<Collection<Product>> distinctProductCollection() {
+        return Stream.of(
+                List.of(
+                        new Product(10, 0d),
+                        new Product(11, 0d),
+                        new Product(12, 0d)
+                )
+        );
+    }
 
-        receipt.setDiscountCard(zeroCard);
 
-        Assertions.assertEquals(zeroCard, receipt.getDiscountCard());
+    private static Stream<Collection<Product>> notDistinctProductCollection() {
+        return Stream.of(
+                List.of(
+                        new Product(10, 0d),
+                        new Product(11, 0d),
+                        new Product(12, 0d),
+                        new Product(12, 0d)
+                )
+        );
     }
 
 }

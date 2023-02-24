@@ -5,37 +5,102 @@ import com.nikolai.exceptions.UnsupportedPatternException;
 import com.nikolai.facade.ReceiptCreator;
 import com.nikolai.factory.ZeroDiscountCardFactory;
 import com.nikolai.model.card.StandardDiscountCard;
-import com.nikolai.model.card.ZeroDiscountCard;
 import com.nikolai.model.product.Product;
+import com.nikolai.parser.CommandLineReceiptParser;
+import com.nikolai.parser.FileReceiptParser;
+import com.nikolai.parser.ReceiptParserProvider;
+import com.nikolai.parser.WebReceiptParser;
 import com.nikolai.service.DiscountCardService;
 import com.nikolai.service.ProductService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.MockitoAnnotations;
+import org.springframework.core.env.Environment;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Optional;
 
-@SpringBootTest
 public class ReceiptCreatorTest {
+    ReceiptCreator receiptCreator;
 
-    @Autowired
-    private ReceiptCreator receiptCreator;
+    @Mock
+    ProductService productService;
 
-    @MockBean
-    private ProductService productService;
+    @Mock
+    DiscountCardService cardService;
 
-    @MockBean
-    private DiscountCardService cardService;
-
-    @MockBean
-    private ZeroDiscountCardFactory zeroDiscountCardFactory;
+    @Mock
+    ZeroDiscountCardFactory zeroDiscountCardFactory;
 
     @BeforeEach
-    public void initServices() {
+    public void init() {
+        MockitoAnnotations.openMocks(this);
+        configureReceiptCreator();
+        configureServices();
+    }
+
+
+    @AfterAll
+    public static void globalClean() throws IOException {
+        deleteOutputFile();
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("com.nikolai.provider.ReceiptDataProvider#invalidReceipts")
+    public void whenInvalidReceipt_thenThrowUnsupportedPatternException(String receipt) {
+        Assertions.assertThrows(UnsupportedPatternException.class, () -> receiptCreator.createReceipt(receipt));
+    }
+
+    @Test
+    public void whenValidReceipt_thenNotThrowUnsupportedPatternException() {
+        String receipt = "1-1 1-2 2-5 card-1234";
+        Assertions.assertDoesNotThrow(() -> receiptCreator.createReceipt(receipt));
+    }
+
+    @Test
+    public void whenCreateReceipt_thenVerifyServicesCalls() {
+        String receipt = "1-1 1-2 2-5 card-1234";
+        receiptCreator.createReceipt(receipt);
+
+        Mockito.verify(productService, Mockito.times(2)).findProductById(1);
+        Mockito.verify(productService, Mockito.times(1)).findProductById(2);
+        Mockito.verify(cardService, Mockito.times(1)).findCardByCode(1234);
+
+        Mockito.verifyNoMoreInteractions(productService);
+        Mockito.verifyNoMoreInteractions(cardService);
+        Mockito.verifyNoMoreInteractions(zeroDiscountCardFactory);
+    }
+
+
+    private void configureReceiptCreator() {
+        var web = Mockito.mock(WebReceiptParser.class);
+        var file = Mockito.mock(FileReceiptParser.class);
+        var env = Mockito.mock(Environment.class);
+
+        Mockito.doThrow(UnsupportedOperationException.class).when(web).parse(Mockito.anyString());
+        Mockito.doThrow(UnsupportedOperationException.class).when(file).parse(Mockito.anyString());
+        Mockito.doReturn("test1").when(env).getProperty(Mockito.anyString());
+
+        receiptCreator = new ReceiptCreator(
+                zeroDiscountCardFactory,
+                web,
+                file,
+                new CommandLineReceiptParser(cardService, productService),
+                new ReceiptParserProvider(),
+                env
+        );
+    }
+
+    private void configureServices() {
         Mockito.when(productService.findProductById(Mockito.any()))
                 .thenAnswer(invocation -> {
                     int id = invocation.getArgument(0);
@@ -45,67 +110,20 @@ public class ReceiptCreatorTest {
                         default -> Optional.empty();
                     };
                 });
-
-
         Mockito.when(cardService.findCardByCode(Mockito.any()))
-                .thenAnswer(invocation -> {
-                    int code = invocation.getArgument(0);
-                    return switch (code) {
-                        case 2222 -> Optional.of(new StandardDiscountCard(1, 2));
-                        default -> Optional.empty();
-                    };
-                });
+                .thenAnswer(
+                        invocation -> (int) invocation.getArgument(0) != 1234 ?
+                                Optional.empty() :
+                                Optional.of(new StandardDiscountCard(1, 2))
+                );
     }
 
-
-    @Test
-    public void givenInvalidInput_thenReturnException() {
-        String strWithUnknownId = "3-1 1-2 3-5 card-2222";
-        String strWithUnknownCardCode = "1-1 1-2 2-5 card-3222";
-        String strWithUnknownPattern = "1-2 -2 2-5";
-
-        Assertions.assertThrows(UnsupportedPatternException.class, () -> receiptCreator.createReceipt(strWithUnknownId));
-        Assertions.assertThrows(UnsupportedPatternException.class, () -> receiptCreator.createReceipt(strWithUnknownCardCode));
-        Assertions.assertThrows(UnsupportedPatternException.class, () -> receiptCreator.createReceipt(strWithUnknownPattern));
-    }
-
-    @Test
-    public void givenInput_thenReturnReceipt() {
-        var spyCreator = Mockito.spy(receiptCreator);
-        String withCard = "1-1 1-2 2-5 card-2222";
-
-        receiptCreator.createReceipt(withCard);
-
-        Mockito.verify(productService, Mockito.times(2)).findProductById(1);
-        Mockito.verify(productService, Mockito.times(1)).findProductById(2);
-        Mockito.verify(cardService, Mockito.times(1)).findCardByCode(2222);
-
-        Mockito.verifyNoMoreInteractions(productService);
-        Mockito.verifyNoMoreInteractions(cardService);
-        Mockito.verifyNoMoreInteractions(zeroDiscountCardFactory);
-
-
-        String withOutCard = "1-1 1-2 2-5";
-
-        Mockito.when(zeroDiscountCardFactory.produce()).thenReturn(new ZeroDiscountCard(1, 2));
-
-        receiptCreator.createReceipt(withOutCard);
-
-        Mockito.verify(productService, Mockito.times(4)).findProductById(1);
-        Mockito.verify(productService, Mockito.times(2)).findProductById(2);
-        Mockito.verify(zeroDiscountCardFactory, Mockito.times(1)).produce();
-
-        Mockito.verifyNoMoreInteractions(productService);
-        Mockito.verifyNoMoreInteractions(cardService);
-
-
-//
-//            Mockito.verify(productService.findProductById(Mockito.any()) , Mockito.times(2));
-//        Mockito.verify(productService.findProductById(Mockito.any()) , Mockito.times(1));
-//
-//        Mockito.verify(cardService.findCardByCode(Mockito.any()) , Mockito.times(1));
-
-
+    private static void deleteOutputFile() {
+        try {
+            Files.delete(Paths.get("test1"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
