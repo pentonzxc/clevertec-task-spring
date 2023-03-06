@@ -4,31 +4,28 @@ import com.nikolai.model.product.Product;
 import com.nikolai.repository.ProductRepository;
 import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-public class ProductServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ProductServiceTest {
 
     @InjectMocks
-    ProductService service;
+    private ProductService service;
 
     @Mock
-    ProductRepository repository;
+    private ProductRepository repository;
 
     @Captor
-    ArgumentCaptor<Integer> argumentCaptor;
-
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private ArgumentCaptor<Integer> argumentCaptor;
 
 
     @Test
-    public void whenFindProductById_thenReturnProduct() {
+    void whenFindProductById_thenReturnProduct() {
         var product = new Product(1, 2d);
         Mockito.doReturn(Optional.of(product)).when(repository).findById(product.getId());
 
@@ -36,7 +33,7 @@ public class ProductServiceTest {
     }
 
     @Test
-    public void whenFindCardById_expectCallRepositoryFindById(){
+    void whenFindCardById_expectCallRepositoryFindById() {
         int expectedId = 1;
         service.findProductById(expectedId);
 

@@ -11,14 +11,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-public class DiscountCardRankTest {
+class DiscountCardRankTest {
 
-    static DiscountCard standartDiscountCard;
+    private static DiscountCard standartDiscountCard;
 
-    static DiscountCard zeroDiscountCard;
+    private static DiscountCard zeroDiscountCard;
 
     @BeforeAll
-    public static void global() {
+    static void global() {
         standartDiscountCard = new StandardDiscountCard(1, 2);
         zeroDiscountCard = new ZeroDiscountCard(2, 3);
     }
@@ -27,7 +27,7 @@ public class DiscountCardRankTest {
     @Nested
     class BronzeDiscountCardTest {
         @Test
-        public void whenBronzeStandardDiscountCard_thenReturnBronzeRankStandardType() {
+        void whenBronzeStandardDiscountCard_thenReturnBronzeRankStandardType() {
             var bronzeGoldSilverStandard = new BronzeDiscountCard(
                     new GoldDiscountCard(new SilverDiscountCard(standartDiscountCard)));
 
@@ -38,7 +38,7 @@ public class DiscountCardRankTest {
         }
 
         @Test
-        public void whenBronzeZeroDiscountCard_thenReturnBronzeRankZeroType() {
+        void whenBronzeZeroDiscountCard_thenReturnBronzeRankZeroType() {
             var bronzeGoldSilverZero = new BronzeDiscountCard(
                     new GoldDiscountCard(new SilverDiscountCard(zeroDiscountCard)));
 
@@ -49,7 +49,7 @@ public class DiscountCardRankTest {
 
 
         @Test
-        public void whenBronzeCardDiscountCard_thenSupportsUpgradeReturnTrue() {
+        void whenBronzeCardDiscountCard_thenSupportsUpgradeReturnTrue() {
             var bronzeStandard = new BronzeDiscountCard(standartDiscountCard);
 
             Assertions.assertTrue(bronzeStandard.supportsUpgrade());
@@ -61,7 +61,7 @@ public class DiscountCardRankTest {
     class SilverDiscountCardTest {
 
         @Test
-        public void whenSilverStandardDiscountCard_thenReturnSilverRankStandardType() {
+        void whenSilverStandardDiscountCard_thenReturnSilverRankStandardType() {
             var silverGoldBronzeStandard = new SilverDiscountCard(
                     new GoldDiscountCard(new BronzeDiscountCard(standartDiscountCard)));
 
@@ -71,7 +71,7 @@ public class DiscountCardRankTest {
         }
 
         @Test
-        public void whenSilverZeroDiscountCard_thenReturnSilverRankZeroType() {
+        void whenSilverZeroDiscountCard_thenReturnSilverRankZeroType() {
             var silverGoldBronzeZero = new SilverDiscountCard(
                     new GoldDiscountCard(new BronzeDiscountCard(zeroDiscountCard)));
 
@@ -81,7 +81,7 @@ public class DiscountCardRankTest {
         }
 
         @Test
-        public void whenSilverCardDiscountCard_thenSupportsUpgradeReturnTrue() {
+        void whenSilverCardDiscountCard_thenSupportsUpgradeReturnTrue() {
             var silverStandard = new SilverDiscountCard(standartDiscountCard);
 
             Assertions.assertTrue(silverStandard.supportsUpgrade());
@@ -94,7 +94,7 @@ public class DiscountCardRankTest {
     class GoldDiscountCardTest {
 
         @Test
-        public void whenGoldStandardDiscountCard_thenReturnGoldRankStandardType() {
+        void whenGoldStandardDiscountCard_thenReturnGoldRankStandardType() {
             var goldSilverBronzeStandard = new GoldDiscountCard(
                     new SilverDiscountCard(new BronzeDiscountCard(standartDiscountCard)));
 
@@ -104,7 +104,7 @@ public class DiscountCardRankTest {
         }
 
         @Test
-        public void whenGoldZeroDiscountCard_thenReturnGoldRankZeroType() {
+        void whenGoldZeroDiscountCard_thenReturnGoldRankZeroType() {
             var goldSilverBronzeZero = new GoldDiscountCard(
                     new SilverDiscountCard(new SilverDiscountCard(zeroDiscountCard)));
 
@@ -115,7 +115,7 @@ public class DiscountCardRankTest {
 
 
         @Test
-        public void whenGoldCardDiscountCard_thenSupportsUpgradeReturnFalse() {
+        void whenGoldCardDiscountCard_thenSupportsUpgradeReturnFalse() {
             var goldStandard = new GoldDiscountCard(standartDiscountCard);
 
             Assertions.assertFalse(goldStandard.supportsUpgrade());

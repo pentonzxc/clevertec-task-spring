@@ -8,13 +8,13 @@ import com.nikolai.model.card.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DiscountCardFactoryTest {
+class DiscountCardFactoryTest {
 
-    DiscountCardFactory factory;
+    private DiscountCardFactory factory;
 
 
     @Test
-    public void whenStandardDiscountCardFactory_thenReturnStandardCard() {
+    void whenStandardDiscountCardFactory_thenReturnStandardCard() {
         factory = new StandardDiscountCardFactory();
         var card = factory.produce();
 
@@ -22,7 +22,7 @@ public class DiscountCardFactoryTest {
     }
 
     @Test
-    public void whenZeroDiscountCardFactory_thenReturnEmptyZeroCardWithDiscountZero(){
+    void whenZeroDiscountCardFactory_thenReturnEmptyZeroCardWithDiscountZero() {
         factory = new ZeroDiscountCardFactory();
         var card = factory.produce();
 

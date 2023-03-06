@@ -6,36 +6,32 @@ import com.nikolai.service.DiscountCardService;
 import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-public class ReceiptParserProviderTest {
+@ExtendWith(MockitoExtension.class)
+class ReceiptParserProviderTest {
 
     @Mock
-    ProductService productService;
+    private ProductService productService;
 
     @Mock
-    DiscountCardService cardService;
+    private DiscountCardService cardService;
 
-    static ParserProvider<Receipt> provider;
+    private static ParserProvider<Receipt> provider;
 
     @BeforeAll
-    public static void global() {
+    static void global() {
         provider = new ReceiptParserProvider();
     }
 
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    public void whenRegisterGenericParser_andGenericReceiptNotInstanceReceiptParserClass_thenThrowClassCastException() {
+    void whenRegisterGenericParser_andGenericReceiptNotInstanceReceiptParserClass_thenThrowClassCastException() {
         var receiptParser = new Parser<Receipt>() {
             @Override
             public Receipt parse(String text) throws RuntimeException {
@@ -47,7 +43,7 @@ public class ReceiptParserProviderTest {
     }
 
     @Test
-    public void whenRegisterGenericParser_andGenericReceiptInstanceReceiptParserClass_thenNotThrowException() {
+    void whenRegisterGenericParser_andGenericReceiptInstanceReceiptParserClass_thenNotThrowException() {
         var fileReceiptParser = new FileReceiptParser(cardService, productService);
 
         var anyReceiptParser = new ReceiptParser(cardService, productService) {

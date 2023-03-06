@@ -19,24 +19,24 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ReceiptServiceTest {
+class ReceiptServiceTest {
 
-    ReceiptService receiptService;
+    private ReceiptService receiptService;
 
-    Receipt receipt;
+    private Receipt receipt;
 
     @Captor
-    ArgumentCaptor<Integer> integerArgumentCaptor;
+    private ArgumentCaptor<Integer> integerArgumentCaptor;
 
     @BeforeEach
-    public void init() {
+    void init() {
         receipt = new Receipt();
         receiptService = new ReceiptService(receipt);
     }
 
 
     @Test
-    public void whenZeroDiscount_thenSummaryPriceReturnSummary() {
+    void whenZeroDiscount_thenSummaryPriceReturnSummary() {
         var product1 = new Product(1, 1d);
         var product2 = new Product(2, 2d);
 
@@ -56,7 +56,7 @@ public class ReceiptServiceTest {
 
 
     @Test
-    public void whenDiscount_thenSummaryDiscountedPriceReturnSummary() {
+    void whenDiscount_thenSummaryDiscountedPriceReturnSummary() {
         var product1 = new Product(1, 1d);
         var product2 = new Product(2, 2d);
 
@@ -79,7 +79,7 @@ public class ReceiptServiceTest {
 
 
     @Test
-    public void whenConstructWithReceipt_thenGetReceiptReturnReceipt() {
+    void whenConstructWithReceipt_thenGetReceiptReturnReceipt() {
         var expectedReceipt = new Receipt();
         receiptService = new ReceiptService(expectedReceipt);
 
@@ -87,7 +87,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void whenEmptyGetReceipt_thenReturnNull() {
+    void whenEmptyGetReceipt_thenReturnNull() {
         receiptService = new ReceiptService(null);
 
         Assertions.assertNull(receiptService.getReceipt());
@@ -95,7 +95,7 @@ public class ReceiptServiceTest {
 
 
     @Test
-    public void whenZeroDiscount_thenDiscountPriceReturnPrice() {
+    void whenZeroDiscount_thenDiscountPriceReturnPrice() {
         var product = new Product(1, 1d);
         var expectedPrice = 1d;
 
@@ -106,7 +106,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void whenDiscount_thenDiscountPriceReturnDiffPrice() {
+    void whenDiscount_thenDiscountPriceReturnDiffPrice() {
         var product = new Product(1, 1d);
 
         receipt.add(new ProductOrder(product, 5));
@@ -118,10 +118,10 @@ public class ReceiptServiceTest {
 
 
     @Test
-    public void whenDiscountPriceWithProduct_expectCallDiscountPriceWithProductId() {
+    void whenDiscountPriceWithProduct_expectCallDiscountPriceWithProductId() {
         receiptService = Mockito.spy(receiptService);
-        var product = new Product(1 , 1d);
-        receipt.add(new ProductOrder(product , 1));
+        var product = new Product(1, 1d);
+        receipt.add(new ProductOrder(product, 1));
         receipt.setDiscountCard(new ZeroDiscountCard());
 
         receiptService.discountPrice(product);
@@ -131,7 +131,7 @@ public class ReceiptServiceTest {
     }
 
     @Test
-    public void whenDiscountPriceWithIdAndDiscountPriceWithProduct_thenReturnSamePrices() {
+    void whenDiscountPriceWithIdAndDiscountPriceWithProduct_thenReturnSamePrices() {
         var product = new Product(1, 1d);
         receipt.add(new ProductOrder(product, 5));
         receipt.setDiscountCard(new StandardDiscountCard(1, 1));

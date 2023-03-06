@@ -5,32 +5,28 @@ import com.nikolai.model.card.StandardDiscountCard;
 import com.nikolai.repository.DiscountCardRepository;
 import com.nikolai.service.DiscountCardService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-public class DiscountCardServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DiscountCardServiceTest {
 
     @InjectMocks
-    DiscountCardService service;
+    private DiscountCardService service;
 
     @Mock
-    DiscountCardRepository repository;
+    private DiscountCardRepository repository;
 
     @Captor
-    ArgumentCaptor<Integer> argumentCaptor;
-
-
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
-    }
+    private ArgumentCaptor<Integer> argumentCaptor;
 
 
     @Test
-    public void whenFindCardByCode_thenReturnCard() {
+    void whenFindCardByCode_thenReturnCard() {
         var card = new StandardDiscountCard(1, 1, 1234);
         Mockito.doReturn(Optional.of(card)).when(repository).findByCode(card.getCode());
 
@@ -38,7 +34,7 @@ public class DiscountCardServiceTest {
     }
 
     @Test
-    public void whenFindCardById_thenReturnCard() {
+    void whenFindCardById_thenReturnCard() {
         var card = new StandardDiscountCard(1, 1, 1234);
         Mockito.doReturn(Optional.of(card)).when(repository).findByCode(card.getId());
 
@@ -47,7 +43,7 @@ public class DiscountCardServiceTest {
 
 
     @Test
-    public void whenFindCardByCode_expectCallRepositoryFindByCode(){
+    void whenFindCardByCode_expectCallRepositoryFindByCode() {
         int expectedCode = 1234;
         service.findCardByCode(expectedCode);
 
@@ -57,7 +53,7 @@ public class DiscountCardServiceTest {
     }
 
     @Test
-    public void whenFindCardById_expectCallRepositoryFindById(){
+    void whenFindCardById_expectCallRepositoryFindById() {
         int expectedId = 1;
         service.findCardById(expectedId);
 

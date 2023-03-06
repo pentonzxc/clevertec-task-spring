@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class ProductDiscountResolverTest {
+class ProductDiscountResolverTest {
     private DiscountCard discountCard;
 
 
     @Test
-    public void givenBronzeDiscountCard_thenReturnBronzeDiscount() {
+    void givenBronzeDiscountCard_thenReturnBronzeDiscount() {
         int expectedDiscount = CardRankConstants.BRONZE_QUANTITY_DISCOUNT + ProductConstants.WITH_QUANTITY_DISCOUNT;
-        discountCard = new BronzeDiscountCard(new StandardDiscountCard(1 , 0));
+        discountCard = new BronzeDiscountCard(new StandardDiscountCard(1, 0));
         ProductOrder productOrder = Mockito.mock(ProductOrder.class);
         Mockito.when(productOrder.getQuantity()).thenReturn(5);
 
@@ -38,9 +38,9 @@ public class ProductDiscountResolverTest {
     }
 
     @Test
-    public void givenSilverDiscountCard_thenReturnBronzeDiscount() {
+    void givenSilverDiscountCard_thenReturnBronzeDiscount() {
         int expectedDiscount = CardRankConstants.SILVER_QUANTITY_DISCOUNT + ProductConstants.WITH_QUANTITY_DISCOUNT;
-        discountCard = new SilverDiscountCard(new StandardDiscountCard(1 , 0));
+        discountCard = new SilverDiscountCard(new StandardDiscountCard(1, 0));
         ProductOrder productOrder = Mockito.mock(ProductOrder.class);
         Mockito.when(productOrder.getQuantity()).thenReturn(5);
 
@@ -58,9 +58,9 @@ public class ProductDiscountResolverTest {
     }
 
     @Test
-    public void givenGoldDiscountCard_thenReturnBronzeDiscount() {
+    void givenGoldDiscountCard_thenReturnBronzeDiscount() {
         int expectedDiscount = CardRankConstants.GOLD_QUANTITY_DISCOUNT + ProductConstants.WITH_QUANTITY_DISCOUNT;
-        discountCard = new GoldDiscountCard(new StandardDiscountCard(1 , 0));
+        discountCard = new GoldDiscountCard(new StandardDiscountCard(1, 0));
         ProductOrder productOrder = Mockito.mock(ProductOrder.class);
         Mockito.when(productOrder.getQuantity()).thenReturn(5);
 
@@ -79,9 +79,9 @@ public class ProductDiscountResolverTest {
     }
 
     @Test
-    public void givenDiscountCard_thenReturnDiscount() {
+    void givenDiscountCard_thenReturnDiscount() {
         int expectedDiscount = ProductConstants.WITH_QUANTITY_DISCOUNT;
-        discountCard = new StandardDiscountCard(1 , 0);
+        discountCard = new StandardDiscountCard(1, 0);
         ProductOrder productOrder = Mockito.mock(ProductOrder.class);
         Mockito.when(productOrder.getQuantity()).thenReturn(5);
 

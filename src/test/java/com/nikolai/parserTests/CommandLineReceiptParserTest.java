@@ -10,49 +10,49 @@ import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-public class CommandLineReceiptParserTest {
+@ExtendWith(MockitoExtension.class)
+class CommandLineReceiptParserTest {
     @InjectMocks
-    CommandLineReceiptParser cliReceiptParser;
+    private CommandLineReceiptParser cliReceiptParser;
 
     @Mock
-    ProductService productService;
+    private ProductService productService;
 
     @Mock
-    DiscountCardService discountCardService;
+    private DiscountCardService discountCardService;
 
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
+    void init() {
         configStorage();
-
     }
 
 
     @ParameterizedTest(name = "input - {arguments}")
     @MethodSource("com.nikolai.provider.ReceiptDataProvider#receipts")
-    public void whenValidReceipt_thenNotThrowException(String receipt) {
+    void whenValidReceipt_thenNotThrowException(String receipt) {
         Assertions.assertDoesNotThrow(() -> cliReceiptParser.parse(receipt));
     }
 
     @ParameterizedTest(name = "input - {arguments}")
     @MethodSource("com.nikolai.provider.ReceiptDataProvider#invalidReceipts")
-    public void whenInvalidReceipt_thenThrowUnknownPatternException(String receipt) {
+    void whenInvalidReceipt_thenThrowUnknownPatternException(String receipt) {
         Assertions.assertThrows(UnsupportedPatternException.class, () -> cliReceiptParser.parse(receipt));
     }
 
     @Test
-    public void whenReceiptWithCard_thenReceiptGetCard() {
+    void whenReceiptWithCard_thenReceiptGetCard() {
         var input = ReceiptDataProvider.receipt();
         var discountCard = discountCardService.findCardByCode(1234).get();
 
@@ -67,7 +67,7 @@ public class CommandLineReceiptParserTest {
             "2, 4",
             "1, 5",
     })
-    public void whenReceipt_checkProductsQuantity(int productId, int productQuantity) {
+    void whenReceipt_checkProductsQuantity(int productId, int productQuantity) {
         var input = ReceiptDataProvider.receiptWithoutCard();
         var receipt = cliReceiptParser.parse(input);
 
@@ -79,23 +79,23 @@ public class CommandLineReceiptParserTest {
     @CsvSource({
             "2-3 1-5 2-1, 2"
     })
-    public void whenReceipt_checkOrdersCount(String receiptAsString, int expectedSize) {
+    void whenReceipt_checkOrdersCount(String receiptAsString, int expectedSize) {
         var receipt = cliReceiptParser.parse(receiptAsString);
 
         Assertions.assertEquals(expectedSize, receipt.getOrdersCount());
     }
 
 
-    public void configStorage() {
-        Mockito.when(discountCardService.findCardByCode(1234)).thenReturn(
+    void configStorage() {
+        Mockito.lenient().when(discountCardService.findCardByCode(1234)).thenReturn(
                 Optional.of(new StandardDiscountCard(1, 20, 1234))
         );
 
-        Mockito.when(productService.findProductById(1)).thenReturn(
+        Mockito.lenient().when(productService.findProductById(1)).thenReturn(
                 Optional.of(new Product(1, 2D))
         );
 
-        Mockito.when(productService.findProductById(2)).thenReturn(
+        Mockito.lenient().when(productService.findProductById(2)).thenReturn(
                 Optional.of(new Product(2, 5D))
         );
     }

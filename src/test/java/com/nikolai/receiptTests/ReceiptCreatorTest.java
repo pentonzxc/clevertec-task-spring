@@ -16,11 +16,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.env.Environment;
 
 import java.io.IOException;
@@ -28,46 +30,46 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-public class ReceiptCreatorTest {
-    ReceiptCreator receiptCreator;
+@ExtendWith(MockitoExtension.class)
+class ReceiptCreatorTest {
+    private ReceiptCreator receiptCreator;
 
     @Mock
-    ProductService productService;
+    private ProductService productService;
 
     @Mock
-    DiscountCardService cardService;
+    private DiscountCardService cardService;
 
     @Mock
-    ZeroDiscountCardFactory zeroDiscountCardFactory;
+    private ZeroDiscountCardFactory zeroDiscountCardFactory;
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
+    void init() {
         configureReceiptCreator();
         configureServices();
     }
 
 
     @AfterAll
-    public static void globalClean() throws IOException {
+    static void globalClean() throws IOException {
         deleteOutputFile();
     }
 
 
     @ParameterizedTest
     @MethodSource("com.nikolai.provider.ReceiptDataProvider#invalidReceipts")
-    public void whenInvalidReceipt_thenThrowUnsupportedPatternException(String receipt) {
+    void whenInvalidReceipt_thenThrowUnsupportedPatternException(String receipt) {
         Assertions.assertThrows(UnsupportedPatternException.class, () -> receiptCreator.createReceipt(receipt));
     }
 
     @Test
-    public void whenValidReceipt_thenNotThrowUnsupportedPatternException() {
+    void whenValidReceipt_thenNotThrowUnsupportedPatternException() {
         String receipt = "1-1 1-2 2-5 card-1234";
         Assertions.assertDoesNotThrow(() -> receiptCreator.createReceipt(receipt));
     }
 
     @Test
-    public void whenCreateReceipt_thenVerifyServicesCalls() {
+    void whenCreateReceipt_thenVerifyServicesCalls() {
         String receipt = "1-1 1-2 2-5 card-1234";
         receiptCreator.createReceipt(receipt);
 
@@ -86,9 +88,9 @@ public class ReceiptCreatorTest {
         var file = Mockito.mock(FileReceiptParser.class);
         var env = Mockito.mock(Environment.class);
 
-        Mockito.doThrow(UnsupportedOperationException.class).when(web).parse(Mockito.anyString());
-        Mockito.doThrow(UnsupportedOperationException.class).when(file).parse(Mockito.anyString());
-        Mockito.doReturn("test1").when(env).getProperty(Mockito.anyString());
+        Mockito.lenient().doThrow(UnsupportedOperationException.class).when(web).parse(Mockito.anyString());
+        Mockito.lenient().doThrow(UnsupportedOperationException.class).when(file).parse(Mockito.anyString());
+        Mockito.lenient().doReturn("test1").when(env).getProperty(Mockito.anyString());
 
         receiptCreator = new ReceiptCreator(
                 zeroDiscountCardFactory,
@@ -101,7 +103,7 @@ public class ReceiptCreatorTest {
     }
 
     private void configureServices() {
-        Mockito.when(productService.findProductById(Mockito.any()))
+        Mockito.lenient().when(productService.findProductById(Mockito.any()))
                 .thenAnswer(invocation -> {
                     int id = invocation.getArgument(0);
                     return switch (id) {
@@ -110,7 +112,7 @@ public class ReceiptCreatorTest {
                         default -> Optional.empty();
                     };
                 });
-        Mockito.when(cardService.findCardByCode(Mockito.any()))
+        Mockito.lenient().when(cardService.findCardByCode(Mockito.any()))
                 .thenAnswer(
                         invocation -> (int) invocation.getArgument(0) != 1234 ?
                                 Optional.empty() :

@@ -16,17 +16,17 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
-public class ReceiptTest {
+class ReceiptTest {
     private Receipt receipt;
 
     @BeforeEach
-    public void init() {
+    void init() {
         receipt = new Receipt();
     }
 
 
     @Test
-    public void whenAdd_thenGetReturnProductOrder() {
+    void whenAdd_thenGetReturnProductOrder() {
         var id = 2;
         var expectedOrder = new ProductOrder(new Product(id, 0d), 0);
 
@@ -36,7 +36,7 @@ public class ReceiptTest {
     }
 
     @Test
-    public void whenAdd_thenGetReturnProductOrderQuantity() {
+    void whenAdd_thenGetReturnProductOrderQuantity() {
         int expectedQuantity = 2, id = 2;
         receipt.add(new ProductOrder(new Product(id, 0d), expectedQuantity));
 
@@ -45,7 +45,7 @@ public class ReceiptTest {
 
 
     @Test
-    public void whenAddProductOrdersWithEqualsProducts_thenGetReturnProductOrderWithMergedQuantity() {
+    void whenAddProductOrdersWithEqualsProducts_thenGetReturnProductOrderWithMergedQuantity() {
         int quantity1 = 2, quantity2 = 2, expectedQuantity = quantity1 + quantity2;
         var id = 1;
 
@@ -57,7 +57,7 @@ public class ReceiptTest {
 
 
     @Test
-    public void whenAddProductOrdersWithEqualsProducts_thenOrdersCountReturnMergedOrders() {
+    void whenAddProductOrdersWithEqualsProducts_thenOrdersCountReturnMergedOrders() {
         int expectedSize = 1, id = 1;
 
         receipt.add(new ProductOrder(new Product(id, 0d), 0));
@@ -68,7 +68,7 @@ public class ReceiptTest {
 
 
     @Test
-    public void whenAddProductOrdersWithDifferentProducts_thenGetReturnProductOrder() {
+    void whenAddProductOrdersWithDifferentProducts_thenGetReturnProductOrder() {
         int expectedSize = 2;
         int id1 = 1, id2 = 2;
         receipt.add(new ProductOrder(new Product(id1, 0d), 0));
@@ -79,12 +79,12 @@ public class ReceiptTest {
 
 
     @Test
-    public void whenEmptyReceipt_thenGetDiscountCardReturnNull() {
+    void whenEmptyReceipt_thenGetDiscountCardReturnNull() {
         Assertions.assertNull(receipt.getDiscountCard());
     }
 
     @Test
-    public void whenSetDiscountCard_thenGetDiscountCardReturnDiscountCard() {
+    void whenSetDiscountCard_thenGetDiscountCardReturnDiscountCard() {
         var expectedCard = new ZeroDiscountCard();
         receipt.setDiscountCard(expectedCard);
 
@@ -93,7 +93,7 @@ public class ReceiptTest {
 
     @ParameterizedTest
     @MethodSource("com.nikolai.receiptTests.ReceiptTest#distinctProductCollection")
-    public void whenAddProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
+    void whenAddProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
         products.forEach((product) -> receipt.add(new ProductOrder(product, 0)));
         var iterator = receipt.iterator();
         for (var expectedProduct : products) {
@@ -105,7 +105,7 @@ public class ReceiptTest {
 
     @ParameterizedTest
     @MethodSource("com.nikolai.receiptTests.ReceiptTest#notDistinctProductCollection")
-    public void whenAddMergedProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
+    void whenAddMergedProductOrders_thenCompareIteratorNextGetProductWithOrderGetProduct(Collection<Product> products) {
         products.forEach((product -> receipt.add(new ProductOrder(product, 0))));
         var iterator = receipt.iterator();
         for (var ignored : products) {
@@ -118,7 +118,7 @@ public class ReceiptTest {
     }
 
     @Test
-    public void whenToString_thenReturnString() {
+    void whenToString_thenReturnString() {
         var id = 1;
         var order = new ProductOrder(new Product(id, 2d), 0);
         var card = new ZeroDiscountCard();
@@ -126,7 +126,7 @@ public class ReceiptTest {
         receipt.setDiscountCard(card);
 
         var expectedToString = "Receipt{" +
-                "orders=" + Map.of(id , order) +
+                "orders=" + Map.of(id, order) +
                 ", discountCard=" + card +
                 '}';
 
