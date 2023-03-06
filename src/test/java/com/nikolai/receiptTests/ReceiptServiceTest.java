@@ -1,167 +1,158 @@
 package com.nikolai.receiptTests;
 
-import com.nikolai.constants.ProductConstants;
-import com.nikolai.factory.DiscountCardFactory;
-import com.nikolai.factory.ZeroDiscountCardFactory;
-import com.nikolai.model.card.StandardDiscountCard;
-import com.nikolai.model.product.Product;
+import com.nikolai.decorator.BronzeDiscountCard;
 import com.nikolai.model.Receipt;
+import com.nikolai.model.card.DiscountCard;
+import com.nikolai.model.card.StandardDiscountCard;
+import com.nikolai.model.card.ZeroDiscountCard;
+import com.nikolai.model.product.Product;
 import com.nikolai.model.product.ProductOrder;
 import com.nikolai.service.ReceiptService;
+import com.nikolai.util.ProductDiscountResolver;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-public class ReceiptServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ReceiptServiceTest {
 
     private ReceiptService receiptService;
-    private static DiscountCardFactory cardFactory;
 
-    @BeforeAll
-    public static void setUp() {
-        cardFactory = new ZeroDiscountCardFactory();
-    }
+    private Receipt receipt;
+
+    @Captor
+    private ArgumentCaptor<Integer> integerArgumentCaptor;
 
     @BeforeEach
-    public void init() {
-        Receipt receipt = new Receipt();
+    void init() {
+        receipt = new Receipt();
         receiptService = new ReceiptService(receipt);
-        var discountCard = cardFactory.produce();
-        receipt.setDiscountCard(discountCard);
     }
 
 
     @Test
-    public void givenNewProductOrders_whenRealSummaryPrice_thenReturnSummary() {
-        var product1 = new Product(2, 3D);
-        var product2 = new Product(1, 2D);
+    void whenZeroDiscount_thenSummaryPriceReturnSummary() {
+        var product1 = new Product(1, 1d);
+        var product2 = new Product(2, 2d);
 
-        var order1 = new ProductOrder(product1, 1);
+        var order1 = new ProductOrder(product1, 2);
         var order2 = new ProductOrder(product1, 2);
         var order3 = new ProductOrder(product2, 3);
-        var receipt = receiptService.getReceipt();
+        receiptAddAll(order1, order2, order3);
 
-        receipt.add(order1);
-        receipt.add(order2);
-        receipt.add(order3);
+        receipt.setDiscountCard(new ZeroDiscountCard());
+        receiptService = new ReceiptService(receipt);
 
-        double expectedSum = product2.getPrice() * order3.getQuantity() +
-                product1.getPrice() * (order2.getQuantity() + order1.getQuantity());
-        var actualSum = receiptService.summaryPrice();
+        var expectedSummary = product1.getPrice() * (order1.getQuantity() + order2.getQuantity()) +
+                product2.getPrice() * order3.getQuantity();
 
-        Assertions.assertEquals(expectedSum, actualSum);
-
-        var standardDiscountCard = new StandardDiscountCard(2, 20);
-        receipt.setDiscountCard(standardDiscountCard);
-
-        var actualWithAnotherCardSum = receiptService.summaryPrice();
-        Assertions.assertEquals(expectedSum, actualWithAnotherCardSum);
+        Assertions.assertEquals(expectedSummary, receiptService.summaryPrice());
     }
 
 
     @Test
-    public void givenNewProductOrders_whenSummaryDiffPrice_thenReturnDiscountSummary() {
-        var product1 = new Product(2, 3D);
-        var product2 = new Product(1, 2D);
-        var receipt = receiptService.getReceipt();
+    void whenDiscount_thenSummaryDiscountedPriceReturnSummary() {
+        var product1 = new Product(1, 1d);
+        var product2 = new Product(2, 2d);
 
-        var order1 = new ProductOrder(product1, 3);
+        var order1 = new ProductOrder(product1, 2);
         var order2 = new ProductOrder(product1, 2);
         var order3 = new ProductOrder(product2, 3);
+        receiptAddAll(order1, order2, order3);
 
-        receipt.add(order1);
-        receipt.add(order2);
-        receipt.add(order3);
+        receipt.setDiscountCard(new BronzeDiscountCard(new StandardDiscountCard(2, 20)));
+        receiptService = new ReceiptService(receipt);
 
-//        var product1_diff_price_1 = (product1.getPrice() * (100 - ProductConstants.WITH_QUANTITY_DISCOUNT)) / 100;
-        var product1DiscountPriceForQuantity = (product1.getPrice() * (100 - ProductConstants.WITH_QUANTITY_DISCOUNT)) / 100;
+        var diffPrice1 = discountPrice(receipt.get(product1.getId()), receipt.getDiscountCard());
+        var diffPrice2 = discountPrice(receipt.get(product2.getId()), receipt.getDiscountCard());
 
-        double firstExpectedSum = product2.getPrice() * order3.getQuantity() +
-                product1DiscountPriceForQuantity * (order2.getQuantity() + order1.getQuantity());
+        var expectedSum = diffPrice1 * (order1.getQuantity() + order2.getQuantity()) +
+                diffPrice2 * order3.getQuantity();
 
-
-        var actualSum = receiptService.summaryDiscountedPrice();
-
-
-        Assertions.assertEquals(firstExpectedSum, actualSum);
-
-        var standardDiscountCard = new StandardDiscountCard(2, 20);
-        receipt.setDiscountCard(standardDiscountCard);
-
-        var product1DiscountPriceForCardQuantity = product1.getPrice() * (100 - (ProductConstants.WITH_QUANTITY_DISCOUNT + standardDiscountCard.getDiscount())) / 100;
-
-        var product2DiscountPriceForCard = (product2.getPrice() * (100 - standardDiscountCard.getDiscount())) / 100;
-
-
-        var secondExpectedSum = product2DiscountPriceForCard * order3.getQuantity() +
-                product1DiscountPriceForCardQuantity * (order2.getQuantity() + order1.getQuantity());
-
-        var actualWithAnotherCardSum = receiptService.summaryDiscountedPrice();
-        Assertions.assertEquals(secondExpectedSum, actualWithAnotherCardSum);
+        Assertions.assertEquals(expectedSum, receiptService.summaryDiscountedPrice());
     }
 
 
     @Test
-    public void whenGetReceipt_thenReturnReceipt() {
-        Receipt srcReceipt = receiptService.getReceipt();
-        var trgReceipt = receiptService.getReceipt();
-        Assertions.assertSame(srcReceipt, trgReceipt);
+    void whenConstructWithReceipt_thenGetReceiptReturnReceipt() {
+        var expectedReceipt = new Receipt();
+        receiptService = new ReceiptService(expectedReceipt);
+
+        Assertions.assertSame(expectedReceipt, receiptService.getReceipt());
+    }
+
+    @Test
+    void whenEmptyGetReceipt_thenReturnNull() {
+        receiptService = new ReceiptService(null);
+
+        Assertions.assertNull(receiptService.getReceipt());
     }
 
 
     @Test
-    public void givenProduct_whenDiscountPrice_thenReturnDiscountPrice() {
-        var product = new Product(1, 2D);
-        var card = new StandardDiscountCard(2, 20);
-        var receipt = receiptService.getReceipt();
-        var price = product.getPrice();
+    void whenZeroDiscount_thenDiscountPriceReturnPrice() {
+        var product = new Product(1, 1d);
+        var expectedPrice = 1d;
 
-
-        var order = Mockito.mock(ProductOrder.class);
-        Mockito.when(order.getProduct()).thenReturn(product);
-        Mockito.when(order.getQuantity()).thenReturn(1).thenReturn(6);
-
-        receipt.setDiscountCard(card);
-        receipt.add(order);
-
-
-        double expectedPrice = (price * (100 - card.getDiscount())) / 100;
+        receipt.add(new ProductOrder(product, 3));
+        receipt.setDiscountCard(new ZeroDiscountCard());
 
         Assertions.assertEquals(expectedPrice, receiptService.discountPrice(product));
-
-        double expectedPrice2 = (price * (100 - (card.getDiscount() + ProductConstants.WITH_QUANTITY_DISCOUNT)) / 100);
-
-        Assertions.assertEquals(expectedPrice2, receiptService.discountPrice(product));
-
     }
 
     @Test
-    public void givenProductId_whenDiscountPrice_thenReturnDiscountPrice() {
-        var product = new Product(1, 2D);
-        var card = new StandardDiscountCard(2, 20);
-        var receipt = receiptService.getReceipt();
-        var price = product.getPrice();
+    void whenDiscount_thenDiscountPriceReturnDiffPrice() {
+        var product = new Product(1, 1d);
 
+        receipt.add(new ProductOrder(product, 5));
+        receipt.setDiscountCard(new BronzeDiscountCard(new StandardDiscountCard(1, 20)));
+        var expectedPrice = discountPrice(receipt.get(product.getId()), receipt.getDiscountCard());
 
-        var order = Mockito.mock(ProductOrder.class);
-        Mockito.when(order.getProduct()).thenReturn(product);
-        Mockito.when(order.getQuantity()).thenReturn(1).thenReturn(6);
-
-        receipt.setDiscountCard(card);
-        receipt.add(order);
-
-
-        double expectedPrice = (price * (100 - card.getDiscount())) / 100;
-
-        Assertions.assertEquals(expectedPrice, receiptService.discountPrice(product.getId()));
-
-        double expectedPrice2 = (price * (100 - (card.getDiscount() + ProductConstants.WITH_QUANTITY_DISCOUNT)) / 100);
-
-        Assertions.assertEquals(expectedPrice2, receiptService.discountPrice(product.getId()));
-
+        Assertions.assertEquals(expectedPrice, receiptService.discountPrice(product));
     }
 
 
+    @Test
+    void whenDiscountPriceWithProduct_expectCallDiscountPriceWithProductId() {
+        receiptService = Mockito.spy(receiptService);
+        var product = new Product(1, 1d);
+        receipt.add(new ProductOrder(product, 1));
+        receipt.setDiscountCard(new ZeroDiscountCard());
+
+        receiptService.discountPrice(product);
+        Mockito.verify(receiptService).discountPrice(integerArgumentCaptor.capture());
+
+        Assertions.assertEquals(product.getId(), integerArgumentCaptor.getValue());
+    }
+
+    @Test
+    void whenDiscountPriceWithIdAndDiscountPriceWithProduct_thenReturnSamePrices() {
+        var product = new Product(1, 1d);
+        receipt.add(new ProductOrder(product, 5));
+        receipt.setDiscountCard(new StandardDiscountCard(1, 1));
+        var discountPrice = receiptService.discountPrice(product);
+
+        Assertions.assertEquals(receiptService.discountPrice(product.getId()), discountPrice);
+    }
+
+
+    private void receiptAddAll(ProductOrder... orders) {
+        for (var order : orders) {
+            receipt.add(order);
+        }
+    }
+
+
+    private double discountPrice(ProductOrder order, DiscountCard card) {
+        return order.getProduct().getPrice() * (100 - (doDiscount(order, card))) / 100;
+    }
+
+    private int doDiscount(ProductOrder order, DiscountCard card) {
+        return ProductDiscountResolver.resolve(order, card);
+    }
 }

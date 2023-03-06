@@ -5,50 +5,36 @@ import com.nikolai.model.product.ProductOrder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
-public class ProductOrderTest {
-
-
-    @Mock
+class ProductOrderTest {
     private Product product;
 
+    private ProductOrder productOrder;
 
     @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
+    void init() {
+        product = new Product(0, 0d);
+        productOrder = new ProductOrder(product, 0);
     }
 
-
     @Test
-    public void whenProductGet_thenReturnProduct() {
-        Mockito.when(product.getId()).thenReturn(0);
-
-        var productOrder = new ProductOrder(product, 0);
-
+    void whenGetProduct_thenReturnProduct() {
         Assertions.assertEquals(product, productOrder.getProduct());
     }
 
 
     @Test
-    public void whenQuantityGet_thenReturnQuantity() {
-        var quantity = 0;
+    void whenGetQuantity_thenReturnQuantity() {
+        var expectedQuantity = 1;
+        productOrder = new ProductOrder(product, expectedQuantity);
 
-        var productOrder = new ProductOrder(product, quantity);
-
-        Assertions.assertEquals(quantity, productOrder.getQuantity());
+        Assertions.assertEquals(expectedQuantity, productOrder.getQuantity());
     }
 
 
     @Test
-    public void whenQuantityUpdate_thenReturnQuantity() {
-        var productOrder = new ProductOrder(product, 0);
-
+    void whenQuantityUpdate_thenReturnUpdatedQuantity() {
         productOrder.setQuantity(5);
-
         Assertions.assertEquals(5, productOrder.getQuantity());
-
     }
 }

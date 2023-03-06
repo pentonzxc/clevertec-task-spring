@@ -29,21 +29,21 @@ public class ReceiptCreator {
     private final FileReceiptParser fileReceiptParser;
     private final CommandLineReceiptParser commandLineReceiptParser;
     private final ParserProvider<Receipt> provider;
-
-    @Autowired
-    private Environment env;
+    private final Environment env;
 
 
     public ReceiptCreator(@Qualifier("zeroDiscountFactory") DiscountCardFactory cardFactory,
                           WebReceiptParser webReceiptParser,
                           FileReceiptParser fileReceiptParser,
                           CommandLineReceiptParser commandLineReceiptParser,
-                          @Qualifier("receiptParserProvider") ParserProvider<Receipt> provider) {
+                          @Qualifier("receiptParserProvider") ParserProvider<Receipt> provider,
+                          Environment env) {
         this.cardFactory = cardFactory;
         this.webReceiptParser = webReceiptParser;
         this.fileReceiptParser = fileReceiptParser;
         this.commandLineReceiptParser = commandLineReceiptParser;
         this.provider = provider;
+        this.env = env;
     }
 
 

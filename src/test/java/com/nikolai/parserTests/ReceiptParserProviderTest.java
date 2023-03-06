@@ -5,30 +5,33 @@ import com.nikolai.parser.*;
 import com.nikolai.service.DiscountCardService;
 import com.nikolai.service.ProductService;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 
-public class ReceiptParserProviderTest {
-    private ParserProvider<Receipt> provider = new ReceiptParserProvider();
+@ExtendWith(MockitoExtension.class)
+class ReceiptParserProviderTest {
 
     @Mock
-    private static ProductService productService;
+    private ProductService productService;
 
     @Mock
-    private static DiscountCardService cardService;
+    private DiscountCardService cardService;
 
+    private static ParserProvider<Receipt> provider;
 
-    @BeforeEach
-    public void init() {
-        MockitoAnnotations.openMocks(this);
+    @BeforeAll
+    static void global() {
+        provider = new ReceiptParserProvider();
     }
 
+
     @Test
-    public void whenRegisterGenericParserReceipt_butNotReceiptParserClass_thenReturnClassCastException() {
+    void whenRegisterGenericParser_andGenericReceiptNotInstanceReceiptParserClass_thenThrowClassCastException() {
         var receiptParser = new Parser<Receipt>() {
             @Override
             public Receipt parse(String text) throws RuntimeException {
@@ -40,21 +43,19 @@ public class ReceiptParserProviderTest {
     }
 
     @Test
-    public void whenRegisterGenericParserReceipt_butItReceiptParserClass_thenReturnVoid() {
-        var fileReceiptParser = new FileReceiptParser(cardService , productService);
+    void whenRegisterGenericParser_andGenericReceiptInstanceReceiptParserClass_thenNotThrowException() {
+        var fileReceiptParser = new FileReceiptParser(cardService, productService);
 
-        var anyReceiptParser = new ReceiptParser(cardService , productService) {
+        var anyReceiptParser = new ReceiptParser(cardService, productService) {
             @Override
-            protected String prepareText(String text) throws Exception {
+            protected String prepareText(String text) throws RuntimeException {
                 return null;
             }
         };
 
-        var commandLineReceiptParser = new CommandLineReceiptParser(cardService , productService);
+        var commandLineReceiptParser = new CommandLineReceiptParser(cardService, productService);
 
-        Assertions.assertDoesNotThrow(() -> {
-            provider.register(List.of(fileReceiptParser, anyReceiptParser, commandLineReceiptParser));
-        });
+        Assertions.assertDoesNotThrow(() -> provider.register(List.of(fileReceiptParser, anyReceiptParser, commandLineReceiptParser)));
     }
 
 }
