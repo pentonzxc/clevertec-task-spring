@@ -1,72 +1,111 @@
 package com.nikolai.productTests;
 
 import com.nikolai.model.product.Product;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ProductTest {
+class ProductTest {
 
     private Product product;
-    private Product differentProduct;
-    private Product sameProduct;
 
 
-    @BeforeEach
-    public void init() {
-        product = new Product(1, 2D);
-        differentProduct = new Product(2, 3D);
-        sameProduct = new Product(1, 5D);
-    }
-
-    @Test
-    public void whenCreateProductWithId_returnId() {
-        Assertions.assertEquals(1, product.getId());
-    }
-
-    @Test
-    public void whenCreateProductWithPrice_returnPrice() {
-        Assertions.assertEquals(2D, product.getPrice());
+    @AfterEach
+    void cleanUp() {
+        product = null;
     }
 
 
     @Test
-    public void givenPrice_whenSetPrice_thenReturnPrice() {
-        double newPrice = 3d;
-        product.setPrice(newPrice);
+    void whenGetId_returnId() {
+        int expectedId = 1;
+        product = new Product(expectedId, 1d);
 
-        Assertions.assertEquals(newPrice, product.getPrice());
+        Assertions.assertEquals(expectedId, product.getId());
+    }
+
+    @Test
+    void whenProductEmpty_thenGetIdReturnNull() {
+        product = new Product();
+        Assertions.assertNull(product.getId());
+    }
+
+    @Test
+    void whenSetId_thenGetIdReturnId() {
+        int expectedId = 1;
+        product = new Product();
+        product.setId(expectedId);
+
+        Assertions.assertEquals(expectedId, product.getId());
+    }
+
+    @Test
+    void whenGetPrice_thenReturnPrice() {
+        double expectedPrice = 2d;
+        product = new Product(expectedPrice);
+
+        Assertions.assertEquals(expectedPrice, product.getPrice());
+    }
+
+    @Test
+    void whenProductEmpty_thenGetPriceReturnNull() {
+        product = new Product();
+        Assertions.assertNull(product.getPrice());
     }
 
 
     @Test
-    public void givenProductWithAnotherId_thenEquals() {
-        Assertions.assertNotEquals(product, differentProduct);
-        Assertions.assertNotEquals(differentProduct, product);
+    void whenSetPrice_thenGetPriceReturnPrice() {
+        double expectedPrice = 3d;
+        product = new Product();
+        product.setPrice(expectedPrice);
+
+        Assertions.assertEquals(expectedPrice, product.getPrice());
+    }
+
+
+    @Test
+    void whenProductsWithDifferentId_thenEqualsReturnFalse() {
+        product = new Product(1, 2d);
+        var anotherProduct = new Product(2, 2d);
+
+        Assertions.assertNotEquals(product, anotherProduct);
     }
 
     @Test
-    public void givenProductWithSameId_thenEquals() {
+    void whenProductsWithSameId_thenEqualsReturnTrue() {
+        product = new Product(1, 2d);
+        var sameProduct = new Product(1, 2d);
+
         Assertions.assertEquals(product, sameProduct);
-        Assertions.assertEquals(sameProduct, product);
     }
 
 
     @Test
-    public void givenProductWithAnotherId_thenHash() {
-        Assertions.assertNotEquals(product.hashCode(), differentProduct.hashCode());
+    void whenProductsWithDifferentId_thenHashCodesReturnDifferentValues() {
+        product = new Product(1, 2d);
+        var anotherProduct = new Product(2, 2d);
+
+        Assertions.assertNotEquals(product.hashCode(), anotherProduct.hashCode());
     }
 
     @Test
-    public void givenProductWithSameId_thenHash() {
+    void whenProductsWithSameId_thenHashCodesReturnSameValues() {
+        product = new Product(1, 2d);
+        var sameProduct = new Product(1, 2d);
+
         Assertions.assertEquals(product.hashCode(), sameProduct.hashCode());
     }
 
-    @Test
-    public void givenEmptyProduct_thenReturnIdAndPrice() {
-        Product emptyProduct = new Product();
-        Assertions.assertNull(emptyProduct.getPrice());
-        Assertions.assertNull(emptyProduct.getId());
-    }
 
+    @Test
+    void whenToString_thenReturnString() {
+        product = new Product();
+        var expectedToString = "Product{" +
+                "id=" + product.getId() +
+                ", cost=" + product.getPrice() +
+                '}';
+
+        Assertions.assertEquals(expectedToString, product.toString());
+    }
 }

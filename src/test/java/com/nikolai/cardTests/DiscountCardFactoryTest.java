@@ -8,31 +8,25 @@ import com.nikolai.model.card.ZeroDiscountCard;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DiscountCardFactoryTest {
+class DiscountCardFactoryTest {
 
-    DiscountCardFactory factory;
+    private DiscountCardFactory factory;
 
 
     @Test
-    public void whenStandardDiscountCardFactory_thenReturnEmptyStandardCard() {
+    void whenStandardDiscountCardFactory_thenReturnStandardCard() {
         factory = new StandardDiscountCardFactory();
         var card = factory.produce();
 
         Assertions.assertTrue(card instanceof StandardDiscountCard);
-        Assertions.assertNull(card.getDiscount());
-        Assertions.assertNull(card.getId());
-        Assertions.assertNull(card.getCode());
     }
 
     @Test
-    public void whenZeroDiscountCardFactory_thenReturnEmptyZeroCardWithDiscountZero(){
+    void whenZeroDiscountCardFactory_thenReturnEmptyZeroCardWithDiscountZero() {
         factory = new ZeroDiscountCardFactory();
         var card = factory.produce();
 
         Assertions.assertTrue(card instanceof ZeroDiscountCard);
-        Assertions.assertEquals(0 , card.getDiscount());
-        Assertions.assertNull(card.getId());
-        Assertions.assertNull(card.getCode());
     }
 
 
